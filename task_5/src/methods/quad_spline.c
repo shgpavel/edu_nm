@@ -70,6 +70,9 @@ vector *quad_spline(vector *points, size_t index, vector *res) {
   vector_push(res, normalized_1);
   vector_push(res, normalized_2);
 
+	free(normalized_1);
+	free(normalized_2);
+
   vector_free(ais);
   free(ais);
 

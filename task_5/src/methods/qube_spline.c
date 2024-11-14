@@ -9,7 +9,7 @@
 #include "polynoms.h"
 
 /* :) */
-double inline get_hi(vector *points, size_t i) {
+double get_hi(vector *points, size_t i) {
   return pair_get(points, i + 1).a - pair_get(points, i).a;
 }
 
@@ -86,13 +86,14 @@ vector *qube_spline(vector *points, size_t index, vector *res) {
 
     vector_push(res, app);
 
+		free(app);
     vector_free(&mult_c);
     vector_free(&mult);
     vector_free(&xminus);
     vector_free(&xminus2);
   }
 
-  vector_free(uay);
+	vector_free(uay);
   free(uay);
 
   matrix_free(&H);

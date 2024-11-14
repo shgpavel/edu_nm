@@ -18,6 +18,7 @@ void matrix_change(matrix *, size_t, size_t, void *);
 void matrix_swap(matrix *, size_t, size_t, size_t, size_t);
 void matrix_row_swap(matrix *, size_t, size_t);
 void *matrix_get(matrix *, size_t, size_t);
+double matrix_val(matrix *, size_t, size_t);
 void matrix_delete(matrix *, size_t, size_t);
 void matrix_free(matrix *);
 void matrix_copy(matrix *, matrix *);

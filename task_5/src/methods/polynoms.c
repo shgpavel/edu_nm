@@ -19,7 +19,7 @@ void fft(complex double *x, size_t n, size_t inverse) {
   fft(even, n / 2, inverse);
   fft(odd, n / 2, inverse);
 
-  complex double W_N = cexp((2 * M_PI * I) / n * (inverse ? 1 : -1));
+  complex double W_N = cexp((2 * M_PI * I) / (double)n * (inverse ? 1 : -1));
   complex double W = 1;
   for (size_t k = 0; k < n / 2; k++) {
     complex double t = W * odd[k];
@@ -57,7 +57,7 @@ vector poly_mult(vector *poly_1, vector *poly_2) {
 
   fft(fft_poly_1, n, 1);
   for (size_t i = 0; i < result_deg; ++i) {
-    double tmp = (creal(fft_poly_1[i]) / n);
+    double tmp = (creal(fft_poly_1[i]) / (double)n);
     vector_push(&res, &tmp);
   }
 

@@ -1,5 +1,7 @@
-// SPDX-License-Identifier: Apache-2.0
-
+/* SPDX-License-Identifier: Apache-2.0 */
 #include <stdio.h>
-
 #include "funcs/func.h"
+
+int main() {
+	int a;
+}
