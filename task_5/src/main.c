@@ -1,4 +1,9 @@
-#define _GNU_SOURCE
+#ifdef __STDC_ALLOC_LIB__
+#define __STDC_WANT_LIB_EXT2__ 1
+#else
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <jemalloc/jemalloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -121,7 +126,6 @@ int main(void) {
             free(vector_get(&funcs, i));
           }
           free(funcs.data);
-          f_allocated = 0;
         }
 
         vector_init(&funcs, 3, sizeof(vector));
@@ -129,9 +133,8 @@ int main(void) {
 
         char *resp_cache = NULL;
         size_t fun_len;
-        ssize_t err = 0;
 
-        while ((err = getline(&resp_cache, &fun_len, funcs_file)) != -1) {
+        while (getline(&resp_cache, &fun_len, funcs_file) != -1) {
           char *curr_pos = resp_cache;
           vector *to_push_v = (vector *)malloc(sizeof(vector));
           double to_push_d_swp;
@@ -295,7 +298,11 @@ int main(void) {
         vector_push(&points, &some);
         printf("] Added x = %lg y = %lg\n", some.a, some.b);
       } else if (flag == 3) {
-        const double tol = 1e-3;
+        if (!p_allocated) {
+          vector_init(&points, 1, sizeof(pair));
+          p_allocated = 1;
+        }
+				const double tol = 1e-3;
         size_t is_found = 0;
         for (size_t i = 0; i < points.size; ++i) {
           if (fabs(pair_get(&points, i).a - some.a) < tol &&
@@ -375,7 +382,6 @@ int main(void) {
     }
 
     else if (strstr(input, "plot")) {
-      // Maybe it should not be like that
       if (strstr(input, "clear")) {
         goto plot_clear;
       }
@@ -455,17 +461,19 @@ int main(void) {
         f_allocated = 1;
       }
       vector_push(&funcs, res);
+			free(res);
     }
 
     else if (strstr(input, "linear") || strstr(input, "quad") ||
              strstr(input, "qube") || strstr(input, "spline")) {
       size_t flag = 0;
-      if (strstr(input, "quad"))
+      if (strstr(input, "quad")) {
         flag = 1;
-      else if (strstr(input, "qube"))
+			} else if (strstr(input, "qube")) {
         flag = 2;
-      else if (strstr(input, "spline"))
+			} else if (strstr(input, "spline")) {
         flag = 3;
+			}
 
       if (!p_allocated) {
         all_errors(POINTS_EMPTY);
@@ -486,8 +494,8 @@ int main(void) {
       vector_init(res, points.size - 1, sizeof(vector));
 
       switch (flag) {
-        case 0:
-          for (size_t i = 0; i < points.size - 1; ++i) {
+				case 0:
+					for (size_t i = 0; i < points.size - 1; ++i) {
             res = linear_spline(&points, i, res);
           }
           break;
@@ -510,7 +518,11 @@ int main(void) {
 
       for (size_t i = 0; i < res->size; ++i) {
         vector_push(&funcs, vector_get(res, i));
-      }
+				free(vector_get(res, i));
+			}
+
+			free(res->data);
+			free(res);
     }
 
     else if (strstr(input, "exit"))

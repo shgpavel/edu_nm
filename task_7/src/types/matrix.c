@@ -51,6 +51,10 @@ void *matrix_get(matrix *m, size_t row, size_t col) {
   return NULL;
 }
 
+double matrix_val(matrix *m, size_t row, size_t col) {
+  return (*(double *)matrix_get(m, row, col));
+}
+
 void matrix_delete(matrix *m, size_t i, size_t j) {
   vector_delete(m->data, i * m->cols + j);
 }

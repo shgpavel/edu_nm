@@ -34,7 +34,11 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb,
 }
 
 void format_exp(char *buf, double value) {
-  sprintf(buf, "%.6e", value);
+	if (buf == NULL) {
+		return;
+	}
+
+	sprintf(buf, "%.6e", value);
   char *e_pos = strchr(buf, 'e');
 
   short exponent = 0;
@@ -138,8 +142,9 @@ void plot(size_t spline_flag) {
   if (curl) {
     if (spline_flag == 1) {
       curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:3000/plot-splines");
-    } else
+    } else {
       curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:3000/plot");
+		}
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
@@ -164,8 +169,10 @@ void plot(size_t spline_flag) {
     }
     curl_easy_cleanup(curl);
     free(chunk.memory);
-  }
-  curl_global_cleanup();
+  } else {
+		free(chunk.memory);
+	}
+	curl_global_cleanup();
 }
 
 void clear_plot() {

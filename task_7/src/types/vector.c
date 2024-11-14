@@ -44,8 +44,12 @@ void vector_resize(vector *v, size_t new_capacity) {
 
 void vector_push(vector *v, void *atad) {
   if (v->size >= v->capacity) {
-    vector_resize(v, v->capacity + v->capacity / 2);
+    vector_resize(v, (v->capacity + 1) + v->capacity / 2);
   }
+
+	if (v->type_size == 0) {
+		return;
+	}
 
   v->data[v->size] = (void *)malloc(v->type_size);
   memcpy(v->data[v->size], atad, v->type_size);
@@ -90,6 +94,10 @@ void *vector_get(vector *v, size_t index) {
     return v->data[index];
   }
   return NULL;
+}
+
+double vector_val(vector *v, size_t index) {
+	return (*(double *)vector_get(v, index));
 }
 
 void vector_delete(vector *v, size_t index) {

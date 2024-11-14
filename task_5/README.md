@@ -1,8 +1,9 @@
 ## Overview:
-    Check ISSUES.md
-
+	Spline calculator, 100% educational
+	Now fixed, I suppose all functions are working normal
+	
 ## Status:
-    Bugz
+    Release
 
 ## Contains:
     src/methods/gauss.c             -- solving SLAE

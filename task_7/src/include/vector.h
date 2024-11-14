@@ -20,6 +20,7 @@ void vector_change(vector *, size_t, void *);
 void vector_assign(vector *, vector *);
 void vector_swap(vector *, size_t, size_t);
 void *vector_get(vector *, size_t);
+double vector_val(vector *, size_t);
 void vector_delete(vector *, size_t);
 void vector_free(vector *);
 void vector_from_heap_to_stack(vector *, vector *);

@@ -1,7 +1,9 @@
 CFLAGS := -Wall -Wextra -Wconversion -Wformat -Wformat-security \
--O3 -std=c2x -fsanitize=address -fsanitize=undefined -O3 -std=c2x ${CFLAGS}
+-O3 -std=c2x ${CFLAGS}
+# -fsanitize=address -fsanitize=undefined 
 
-LDFLAGS := -lm -ljemalloc -lcurl -fsanitize=address -fsanitize=undefined  ${LDFLAGS}
+LDFLAGS := -lm -ljemalloc -lcurl ${LDFLAGS}
+# -fsanitize=address -fsanitize=undefined
 
 CC = clang
 LD = clang
