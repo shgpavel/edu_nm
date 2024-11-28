@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../common.h"
-#include "pair.h"
-
 int on_heap(void *p) {
   int stack_item;
   return p < (void *)&stack_item;
@@ -96,10 +93,6 @@ void *vector_get(vector *v, size_t index) {
   return NULL;
 }
 
-double vector_val(vector *v, size_t index) {
-	return (*(double *)vector_get(v, index));
-}
-
 void vector_delete(vector *v, size_t index) {
   if (index < v->size - 1) {
     free(vector_get(v, index));
@@ -150,6 +143,7 @@ void vector_print(vector *v) {
   }
 }
 
+/*
 void vector_print_pairs(vector *v) {
   if (v->type_size == sizeof(pair)) {
     for (size_t i = 0; i < v->size; ++i) {
@@ -157,6 +151,7 @@ void vector_print_pairs(vector *v) {
     }
   }
 }
+*/
 
 void vector_fill_smth(vector *v, double x) {
   if (v->type_size == sizeof(double)) {

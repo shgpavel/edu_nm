@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
- * Contains compound quadrature formulas
+ * Contains quadrature formulas
  * - midpoint (middle rectangles)
  * - left rectangles 
  * - trapezoidal
