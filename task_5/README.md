@@ -1,6 +1,6 @@
 ## Overview:
-	Spline calculator, 100% educational
-	Now fixed, I suppose all functions are working normal
+	InterpolationSplines calculator, 100% educational
+	Now fixed, all functions working (except ones mentioned in ISSUES.md)
 	
 ## Status:
     Release
@@ -13,18 +13,18 @@
 	src/methods/linear_spline.c     -- linear spline interpolation (1 1)
     src/methods/quad_spline.c       -- spline 2 1
     src/methods/qube_spline.c       -- spline 3 2
-    src/methods/penalty.c           -- spline 2 0 SLAE interp and newton2
+    src/methods/penalty.c           -- spline 2 0, SLAE interp and newton2
 
     src/types/matrix.c              -- matrix methods
 	src/types/vector.c              -- vector methods
     src/types/pair.h                -- simple pair with doubles
 
-    src/draw/draw.c                 -- using curl to send funcs to the server
+	(check drafter2 instead of this ->)
+    src/draw/draw.c                 -- BAD cURL HTTP client
 	src/draw/drawer.js              -- JS POST/GET server to draw with desmos
 
-	src/funcs/funcs.h               -- functions from task
+	src/funcs/funcs.h               -- functions from task, some aux
     src/common.h                    -- macros and defs
-    src/test/*                      -- test dataset
 	src/main.c                      -- base logic
 
 ## Dependencies:
@@ -41,6 +41,7 @@
 ## Build:
 	cd src/draw
 	npm install express
+	cd ..
     make
     make clean
 

@@ -1,38 +1,57 @@
 import numpy as np
-import timeit
+import time
 import matplotlib.pyplot as plt
 
 from aux.var import A, B
-from methods.rk2 import rk2
-from methods.rk2wc import rk2wc
+from methods.rk2 import rk2, rk2_cpu
+from methods.rk2wc import rk2wc, rk2wc_cpu
 
 EPSILON = 1e-4
 
+def print_perf(f, y0, t0, t_end, h, ntests=1000):
+    execution_times = []
+    for _ in range(ntests):
+        start_time = time.time()
+        f(y0, t0, t_end, h)
+        end_time = time.time()
+        execution_times.append(end_time - start_time)
+        
+    execution_time = sum(execution_times)
+    
+    execution_times.sort()
+    low_1p_count = max(1, ntests // 100)
+    low_1p = np.mean(execution_times[-low_1p_count:])
+    
+    high_95p = np.percentile(execution_times, 95)
+    low_1p2 = np.percentile(execution_times, 1)
+    
+    print(f"{f.__name__}\n"
+          f"{'avg':<10}{execution_time / ntests:.6f} sec\n"
+          f"{'low 1p':<10}{low_1p:.6f} sec\n"
+          f"{'95p':<10}{high_95p:.6f} sec\n")
+
 def main():
-    y0 = [B * np.pi, A * np.pi]
+    y0 = np.array([B * np.pi, A * np.pi], dtype=np.float32)
     t0 = 0.0
     t_end = np.pi
     h = 0.0001
 
     t_values, y_values = rk2(y0, t0, t_end, h)
     y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
-    print(f"y1(pi) = {y1_pi:.4f}, y2(pi) = {y2_pi:.4f}")
+    print(f"{'rk2':<7} y1(pi) = {y1_pi:.4f}, y2(pi) = {y2_pi:.4f}")
 
-    execution_time = timeit.timeit(lambda: rk2(y0, t0, t_end, h),
-                                   number=5)
-    print(f"AVG: {execution_time / 100:.6f} sec")
-
-    def f(t, y):
-        return np.array([A * y[1], -B * y[0]])
-    
-    t_values, y_values = rk2wc(f, y0, t0, t_end, EPSILON)
+    t_values, y_values = rk2_cpu(y0, t0, t_end, h)
     y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
-    print(f"y1(pi) = {y1_pi:.4f}, y2(pi) = {y2_pi:.4f}")
-    execution_time = timeit.timeit(lambda:
-                                   rk2wc(f, y0, t0, t_end, EPSILON),
-                                   number=5)
-    print(f"AVG: {execution_time / 100:.6f} sec")
+    print(f"{'rk2_cpu':<7} y1(pi) = {y1_pi:.4f}, y2(pi) = {y2_pi:.4f}\n")
 
+    print_perf(rk2, y0, t0, t_end, h)
+    print_perf(rk2_cpu, y0, t0, t_end, h)
+        
+    t_values, y_values = rk2wc_cpu(y0, t0, t_end)
+    y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
+    print(f"{'rk2wc_cpu':<7} y1(pi) = {y1_pi:.4f}, y2(pi) = {y2_pi:.4f}\n")
 
+    print_perf(rk2wc_cpu, y0, t0, t_end, h)
+    
 if __name__ == "__main__":
     main()
