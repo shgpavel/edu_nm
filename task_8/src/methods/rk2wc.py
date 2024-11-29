@@ -3,102 +3,33 @@ import pycuda.autoinit
 import pycuda.driver as drv
 
 from aux.var import A, B, XI
+from aux.func import func
+
 from pycuda.compiler import SourceModule
+
 
 S = 2
 
-mod = SourceModule("""
-#include <math.h>
+with open("methods/kernels/rk2wc.cu", "r") as f:
+    kernel_code = f.read()
 
-__global__ void rk2wc_cuda(
-        float h,
-        float A,
-        float B,
-        float a21,
-        float b1,
-        float b2,
-        float tol,
-        unsigned num_steps,
-        float *y_initial,
-        float *y_values) {
-    
-    int system_idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    float *y_current = y_initial + 2 * system_idx;
-    float *y_all_steps = y_values + system_idx;
-
-    float y1 = y_current[0];
-    float y2 = y_current[1];
-
-    y_all_steps[0] = y1;
-    y_all_steps[num_steps * 2 * gridDim.x] = y2;
-
-    float h_2 = h * 0.5f;
-
-    for (unsigned step = 1; step < num_steps; ++step) {
-        /* f */
-        float f_y1 = A * y2;
-        float f_y2 = -B * y1;
-
-        /* associative part */
-        float ap_1 = a21 * h * f_y1;
-        float ap_2 = a21 * h * f_y2;
-
-        /* first part of full step */
-        float y_1p1 = y1 + ap_1;
-        float y_2p1 = y2 + ap_2;
-
-        /* apply f 2nd time */
-        float f2_y1 = A * y_1p1;
-        float f2_y2 = -B * y_2p1;
-        
-        /* first part of full step */
-        float y_1p1_2 = y1 + ap_1 / 2;
-        float y_2p1_2 = y2 + ap_2 / 2;
-
-        /* apply f 2nd time */
-        float f2_y1_2 = A * y_1p1_2;
-        float f2_y2_2 = -B * y_2p1_2;
-
-        float y1_full = y1 + b1 * h * f_y1 + b2 * h * f2_y1;
-        float y2_full = y2 + b1 * h * f_y2 + b2 * h * f2_y2;
-        
-        float y1_half = y1 + b1 * h_2 * f_y1 + b2 * h_2 * f2_y1_2;
-        float y2_half = y2 + b1 * h_2 * f_y1 + b2 * h_2 * f2_y2_2;
-
-        float error1 = fabsf(y1_full - y1_half);
-        float error2 = fabsf(y2_full - y2_half);
-        float error = fmaxf(error1, error2) / 3.0f;
-
-        y_all_steps[step * 2 * gridDim.x] = y1;
-        y_all_steps[step * 2 * gridDim.x + 1] = y2; 
-
-        if (error > tol) {
-            h *= 0.5f;
-        } else {
-            
-        }
-    }
-}
-""", options=["-use_fast_math"])
-
- rk2wc_cuda = mod.get_function("rk2wc_cuda")    
+module = SourceModule(kernel_code, options=["-use_fast_math"])
+rk2wc_cuda = module.get_function("rk2wc_cuda")    
 
 def rk2wc(f, y0, t0, t_end, tol):
     if len(y0) % 2 != 0:
         raise ValueError("try something else")
+
+    a21 = XI
+    b2 = 1 / (2 * XI)
+    b1 = 1 - b2
     
     delta = pow((1 / max(abs(t0), abs(t_end))), S)
     # + pow(np.linalg.norm(f, 2), S + 1)
     h = pow(tol / delta, 1/(S + 1))
 
-
     y0 = np.array(y0, dtype=np.float32)
     N = len(y0) // 2
-    
-    a21 = XI
-    b2 = 1 / (2 * XI)
-    b1 = 1 - b2
     
     num_steps = int(np.ceil((t_end - t0) / h)) + 1
     t_values = np.linspace(t0, t_end, num_steps, dtype=np.float32)
@@ -118,9 +49,9 @@ def rk2wc(f, y0, t0, t_end, tol):
         np.float32(h),
         np.float32(A),
         np.float32(B),
-        np.float32(XI),
-        np.float32(1.0 - 1.0/(2.0 * XI)),
-        np.float32(1.0/(2.0 * XI)),
+        np.float32(a21),
+        np.float32(b1),
+        np.float32(b2),
         np.int32(num_steps),
         y_initial_gpu,
         y_values_gpu,
@@ -130,3 +61,76 @@ def rk2wc(f, y0, t0, t_end, tol):
     
     drv.memcpy_dtoh(y_values_host, y_values_gpu)
     return t_values, y_values_host
+
+
+def rk2wc_cpu(y0, t0, t_end, tol=1e-5):
+    
+    a21 = XI
+    b2 = 1 / (2 * XI)
+    b1 = 1 - b2
+
+    max_step_factor = 2
+    min_step_factor = 0.1
+    h_max = 1.0
+    h_min = 1e-7
+    
+    t = t0
+    y = np.array(y0, dtype=np.float32)
+    t_values = [t]
+    y_values = [y.copy()]
+
+    def _rk_step(t, y, h):
+        k1 = func(t, y)
+        y_temp = y + a21 * h * k1
+        k2 = func(t + a21 * h, y_temp)
+        y_new = y + h * (b1 * k1 + b2 * k2)
+        return y_new
+
+    #def _init_h(t0, t_end, y0, tol):
+    
+    delta = pow((1 / max(abs(t0), abs(t_end))), S + 1) + \
+        pow(np.linalg.norm(func(t, y), ord=np.inf), S + 1)
+    h = pow(tol / delta, 1/(S + 1))
+    
+    while t < t_end:
+        if t + h > t_end:
+            h = t_end - t
+
+        y1 = _rk_step(t, y, h)
+
+        h_half = h * 0.5
+        y_half = _rk_step(t, y, h_half)
+        y2 = _rk_step(t + h_half, y_half, h_half)
+
+        error_estimate = np.linalg.norm(y2 - y1, ord=np.inf)    
+        scale = tol * max(np.linalg.norm(y2, ord=np.inf), 1.0)
+        
+        if error_estimate <= scale:
+            t += h
+            y = y2
+            t_values.append(t)
+            y_values.append(y.copy())
+            
+            if error_estimate < 1e-10:
+                factor = max_step_factor
+            else:
+                factor = (scale / error_estimate) ** (1 / (S + 1))
+                factor = min(max(factor, min_step_factor), max_step_factor)
+
+            h = min(h * factor, h_max)
+            continue
+
+        factor = (scale / error_estimate) ** (1 / (S + 1))
+        factor = max(factor, min_step_factor)
+        h = max(h * factor, h_min)
+
+        if h == h_min:
+            t += h
+            y = y2
+            t_values.append(t)
+            y_values.append(y.copy())
+
+    t_values = np.array(t_values)
+    y_values = np.array(y_values, dtype=np.float32)
+    
+    return t_values, y_values

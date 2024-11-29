@@ -27,3 +27,6 @@ Least squares method (LSM) for function approximation
 ### task_7
 Calculus of definite integral
 (Ready to use on release MT & x86 Intrinsics)
+
+### task_8
+Runge–Kutta on CUDA

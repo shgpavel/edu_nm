@@ -1,12 +1,14 @@
 ## Overview:
-
+    
 ## Status:
-	In development
+	In development, WIP
 
-## Contains:
+## Extra:
 
-## Dependencies:
+## Dependencies:    
 
 ## Build:
-
+    Do not try this is WIP
+    make
 ## Start:
+    ./build/main

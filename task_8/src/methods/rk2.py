@@ -2,66 +2,35 @@ import numpy as np
 import pycuda.autoinit
 import pycuda.driver as drv
 
-from aux.var import A, B, XI
 from pycuda.compiler import SourceModule
+
+from numba import njit
+
+from aux.var import A, B, XI
+from aux.func import func
 
 S = 2
 
-mod = SourceModule("""
-#include <math.h>
-__global__ void rk2_step(
-        float h,
-        unsigned num_steps,
-        float A,
-        float B,
-        float a21,
-        float b1,
-        float b2,
-        float *y_initial,
-        float *y_values) {
-    
-    int system_idx = blockIdx.x * blockDim.x + threadIdx.x;
+with open("methods/kernels/rk2.cu", "r") as f:
+    kernel_code = f.read()
 
-    float *y_current = y_initial + 2 * system_idx;
-    float *y_all_steps = y_values + system_idx;
-
-    float y1 = y_current[0];
-    float y2 = y_current[1];
-
-    y_all_steps[0] = y1;
-    y_all_steps[num_steps * 2 * gridDim.x] = y2;
-
-    for (unsigned step = 1; step < num_steps; ++step) {
-        float k1_y1 = A * y2;
-        float k1_y2 = -B * y1;
-            
-        float y_temp1 = y1 + a21 * h * k1_y1;
-        float y_temp2 = y2 + a21 * h * k1_y2;
-            
-        float k2_y1 = A * y_temp2;
-        float k2_y2 = -B * y_temp1;
-            
-        y1 = y1 + h * (b1 * k1_y1 + b2 * k2_y1);
-        y2 = y2 + h * (b1 * k1_y2 + b2 * k2_y2);
-            
-        y_all_steps[step * 2 * gridDim.x] = y1;
-        y_all_steps[step * 2 * gridDim.x + 1] = y2;
-    }
-}""", options=["-use_fast_math"])
-
-
-rk2_step = mod.get_function("rk2_step")
+module = SourceModule(kernel_code, options=["-use_fast_math"])
+rk2_cuda = module.get_function("rk2_cuda")
 
 def rk2(y0, t0, t_end, h):
     if len(y0) % 2 != 0:
         raise ValueError("try something else")
 
+    a21 = XI
+    b2 = 1 / (2 * XI)
+    b1 = 1 - b2
+    
     y0 = np.array(y0, dtype=np.float32)
     N = len(y0) // 2
 
     num_steps = int(np.ceil((t_end - t0) / h)) + 1
     t_values = np.linspace(t0, t_end, num_steps, dtype=np.float32)
-
+    
     y_values_host = np.zeros((num_steps, 2 * N), dtype=np.float32)
     y_values_host[0, :] = y0
 
@@ -73,14 +42,14 @@ def rk2(y0, t0, t_end, h):
     threads_per_block = 64
     blocks = (N + threads_per_block - 1) // threads_per_block
     
-    rk2_step(
+    rk2_cuda(
         np.float32(h),
-        np.int32(num_steps),
         np.float32(A),
         np.float32(B),
-        np.float32(XI),
-        np.float32(1.0 - 1.0/(2.0 * XI)),
-        np.float32(1.0/(2.0 * XI)),
+        np.float32(a21),
+        np.float32(b1),
+        np.float32(b2),
+        np.int32(num_steps),
         y_initial_gpu,
         y_values_gpu,
         block=(threads_per_block, 1, 1),
@@ -91,30 +60,34 @@ def rk2(y0, t0, t_end, h):
     
     return t_values, y_values_host
 
+@njit
+def rk2_cpu(y0, t0, t_end, h):
 
-def rk2wc(f, y0, t0, t_end, tol):
-    delta = pow((1 / max(abs(t0), abs(t_end))), S)
-    # + pow(np.linalg.norm(f, 2), S + 1)
-    h = pow(tol / delta, 1/(S + 1))
-    
     a21 = XI
     b2 = 1 / (2 * XI)
     b1 = 1 - b2
 
-    t_values = np.arange(t0, t_end + h, h)
-    y_lin_values = np.zeros((len(t_values), len(y0)))
-    y_cap_values = np.zeros((len(t_values), len(y0)))
-    # y_values = np.zeros((len(t_values), len(y0)))
+    num_steps = int(np.ceil((t_end - t0) / h)) + 1
+    t_values = np.linspace(t0, t_end, num_steps)
+    y_values = np.zeros((num_steps, len(y0)), dtype=np.float32)
+
+    y_values[0, :] = y0
+
+    k1 = np.zeros(len(y0), dtype=np.float32)
+    k2 = np.zeros(len(y0), dtype=np.float32)
+    y_temp = np.zeros(len(y0), dtype=np.float32)
     
-    y_lin_values[0, :], y_cap_values[0, :] = y0, y0
-    
-    for i in range(1, len(t_values)):
+    for i in range(1, num_steps):
         t = t_values[i - 1]
         y = y_values[i - 1]
-        
-        k1 = h * f(t, y)
-        k2 = h * f(t + XI * h, y + a21 * k1 * h)
-        
-        y_values[i, :] = y + b1 * k1 + b2 * k2
+
+        k1 = func(t, y)
+
+        y_temp = y + a21 * h * k1
+
+        k2 = func(t + a21 * h, y_temp)
+
+        y_new = y + h * (b1 * k1 + b2 * k2)
+        y_values[i] = y_new
 
     return t_values, y_values
