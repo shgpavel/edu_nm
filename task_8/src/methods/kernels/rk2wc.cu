@@ -1,10 +1,10 @@
 #include <math.h>
 
-__global__ void rk2wc_cuda(float h, float A, float B,
+__global__ void rk2wc_cuda(float t0, float t_end, float h,
+													 float tol, float A, float B,
 													 float a21, float b1, float b2,
-													 float tol, unsigned num_steps,
 													 float *y_initial, float *y_values) {
-	
+		
 	int system_idx = blockIdx.x * blockDim.x + threadIdx.x;
 	
 	float *y_current = y_initial + 2 * system_idx;

@@ -3,11 +3,11 @@ import pycuda.autoinit
 import pycuda.driver as drv
 
 from pycuda.compiler import SourceModule
-
 from numba import njit
 
 from aux.var import A, B, XI
 from aux.func import func
+from aux.init_h import init_h
 
 S = 2
 
@@ -91,3 +91,16 @@ def rk2_cpu(y0, t0, t_end, h):
         y_values[i] = y_new
 
     return t_values, y_values
+
+def rk2_tol(y0, t0, t_end, tol):
+    h = init_h(y0, t0, t_end, tol, S)
+    sol, ri_hat = [1, 1], [1, 1]
+    
+    while max(abs(ri_hat[0]), abs(ri_hat[1])) > tol:
+        t, y = rk2(y0, t0, t_end, h)
+        h *= 0.5
+        t_half, y_half = rk2(y0, t0, t_end, h)
+
+        ri_hat = y_half[-1] - y[-1] / (pow(2, S) - 1)
+        sol = y_half[-1] + ri_hat
+    return sol
