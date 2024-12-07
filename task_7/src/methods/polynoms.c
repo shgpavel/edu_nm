@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+
 #include <jemalloc/jemalloc.h>
 
 #include <stdio.h>
@@ -116,9 +117,9 @@ vector poly_sum(size_t count, ...) {
 }
 
 double poly_val(vector *v, double point) {
-  double res = 0.0;
-  for (size_t i = 0; i < v->size; ++i) {
-    res += vector_val(v, i) * pow(point, (double)i);
-  }
-  return res;
+	double res = 0.0;
+	for (size_t i = 0; i < v->size; ++i) {
+		res += vector_val(v, i) * pow(point, (double)i);
+	}
+	return res;
 }

@@ -4,17 +4,21 @@ import matplotlib.pyplot as plt
 
 from aux.var import A, B
 from methods.rk2 import rk2, rk2_cpu, rk2_tol
+from methods.rk4 import rk4, rk4_cpu
 from methods.rk2wc import rk2wc_cpu
+from methods.rk4wc import rk4wc_cpu
 
 EPSILON = 1e-4
 RHO = 1e-5
+
+auto_names = ["rk2wc_cpu", "rk4wc_cpu"]
 
 def print_perf(f, y0, t0, t_end, h, ntests=100):
     execution_times = []
     for _ in range(ntests):
         start_time = time.time()
 
-        if f.__name__ == "rk2wc_cpu":
+        if f.__name__ in auto_names:
             f(y0, t0, t_end, RHO)
         else:
             f(y0, t0, t_end, h)
@@ -52,10 +56,23 @@ def main():
 
     t_values, y_values = rk2wc_cpu(y0, t0, t_end, RHO)
     y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
-    print(f"{'rk2wc_cpu':<7} y1(pi) = {y1_pi:.6f}, y2(pi) = {y2_pi:.6f}\n")
+    print(f"{'rk2wc_cpu':<7} y1(pi) = {y1_pi:.6f}, y2(pi) = {y2_pi:.6f}")
 
-    sol = rk2_tol(y0, t0, t_end, EPSILON)
-    print(sol)
+    t_values, y_values = rk4(y0, t0, t_end, h)
+    y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
+    print(f"{'rk4':<7} y1(pi) = {y1_pi:.6f}, y2(pi) = {y2_pi:.6f}")
+
+    t_values, y_values = rk4_cpu(y0, t0, t_end, h)
+    y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
+    print(f"{'rk4_cpu':<7} y1(pi) = {y1_pi:.6f}, y2(pi) = {y2_pi:.6f}")
+
+    t_values, y_values = rk4wc_cpu(y0, t0, t_end, RHO)
+    y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
+    print(f"{'rk4wc_cpu':<7} y1(pi) = {y1_pi:.6f}, y2(pi) = {y2_pi:.6f}\n")    
+
+    
+    #sol = rk2_tol(y0, t0, t_end, EPSILON)
+    #print(sol)
     #y1_pi, y2_pi = y_values[-1, 0], y_values[-1, 1]
     #print(f"{'rk2wc_cpu':<7} y1(pi) = {y1_pi:.6f}, y2(pi) = {y2_pi:.6f}\n")
 
@@ -63,6 +80,10 @@ def main():
     print_perf(rk2, y0, t0, t_end, h)
     print_perf(rk2_cpu, y0, t0, t_end, h)
     print_perf(rk2wc_cpu, y0, t0, t_end, h)
+    print_perf(rk4, y0, t0, t_end, h)
+    print_perf(rk4_cpu, y0, t0, t_end, h)
+    print_perf(rk4wc_cpu, y0, t0, t_end, h)
+    
     
 if __name__ == "__main__":
     main()
