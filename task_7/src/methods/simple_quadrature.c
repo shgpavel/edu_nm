@@ -10,9 +10,8 @@
 
 #include <stdio.h>
 
-
-#include "../funcs/func.h"
-#include "../include/vector.h"
+#include "func.h"
+#include "vector.h"
 
 double quad_left(vector *points) {
 
