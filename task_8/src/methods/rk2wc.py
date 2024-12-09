@@ -28,13 +28,13 @@ def rk2wc(y0, t0, t_end, tol):
     
     h = init_h(y0, t0, t_end, tol)
     
-    y0 = np.array(y0, dtype=np.float32)
+    y0 = np.array(y0, dtype=np.float64)
     N = len(y0) // 2
     
     num_steps = int(np.ceil((t_end - t0) / h)) + 1
-    t_values = np.linspace(t0, t_end, num_steps, dtype=np.float32)
+    t_values = np.linspace(t0, t_end, num_steps, dtype=np.float64)
     
-    y_values_host = np.zeros((num_steps, 2 * N), dtype=np.float32)
+    y_values_host = np.zeros((num_steps, 2 * N), dtype=np.float64)
     y_values_host[0, :] = y0
 
     y_initial_gpu = drv.mem_alloc(y0.nbytes)
@@ -46,15 +46,15 @@ def rk2wc(y0, t0, t_end, tol):
     blocks = (N + threads_per_block - 1) // threads_per_block
 
     rk2wc_cuda(
-        np.float32(t0),
-        np.float32(t_end),
-        np.float32(h),
-        np.float32(tol),
-        np.float32(A),
-        np.float32(B),
-        np.float32(a21),
-        np.float32(b1),
-        np.float32(b2),
+        np.float64(t0),
+        np.float64(t_end),
+        np.float64(h),
+        np.float64(tol),
+        np.float64(A),
+        np.float64(B),
+        np.float64(a21),
+        np.float64(b1),
+        np.float64(b2),
         y_initial_gpu,
         y_values_gpu,
         block=(threads_per_block, 1, 1),
@@ -124,6 +124,6 @@ def rk2wc_cpu(y0, t0, t_end, tol):
             
 
     t_values = np.array(t_values)
-    y_values = np.array(y_values, dtype=np.float32)
+    y_values = np.array(y_values, dtype=np.float64)
     
     return t_values, y_values

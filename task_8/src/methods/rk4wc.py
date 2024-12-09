@@ -9,12 +9,12 @@ S = 4
 def rk4wc_cpu(y0, t0, t_end, tol):
 
     t = t0
-    y = np.copy(y0)
+    y = y0
     t_values = [t]
-    y_values = [np.copy(y)]
-
-    h = init_h(y0, t0, t_end, tol, S)
+    y_values = [y]
     
+    h = init_h(y0, t0, t_end, tol, S)
+
     while t <= t_end:
         if t + h >= t_end:
             h = t_end - t
@@ -39,7 +39,7 @@ def rk4wc_cpu(y0, t0, t_end, tol):
         k4 = h_half * func(t + 2 * h_half, y_half + k3)
         y2 = y_half + (k1 + 2*k2 + 2*k3 + k4)/6
         
-        error = np.linalg.norm(y2 - y1, ord=np.inf)    
+        error = np.linalg.norm(y2 - y1, ord=1)    
         eps2s = tol * pow(2, S)
         eps2s1 = tol / pow(2, S + 1)
 
@@ -50,22 +50,21 @@ def rk4wc_cpu(y0, t0, t_end, tol):
             t += h_half
             y = y2
             t_values.append(t)
-            y_values.append(np.copy(y))
+            y_values.append(y)
            
         elif error >= eps2s1:
             t += h
             y = y1
             t_values.append(t)
-            y_values.append(np.copy(y))
+            y_values.append(y)
             
         else:
             t += 2 * h
             y = y1
             t_values.append(t)
-            y_values.append(np.copy(y))
+            y_values.append(y)
             
-
     t_values = np.array(t_values)
-    y_values = np.array(y_values, dtype=np.float32)
+    y_values = np.array(y_values, dtype=np.float64)
     
     return t_values, y_values
