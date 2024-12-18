@@ -70,29 +70,30 @@ def rk4_cpu(y0, t0, t_end, h):
         t = t_values[i - 1]
         y = y_values[i - 1]
 
-        k1 = h * func(t, y)
-        k2 = h * func(t + 0.5 * h, y + 0.5 * k1)
-        k3 = h * func(t + 0.5 * h, y + 0.5 * k2)
-        k4 = h * func(t + h, y + k3)
+        k1 = func(t, y)
+        k2 = func(t + 0.5 * h, y + 0.5 * h * k1)
+        k3 = func(t + 0.5 * h, y + 0.5 * h * k2)
+        k4 = func(t + h, y + h * k3)
 
-        y_new = y + (k1 + 2 * k2 + 2 * k3 + k4)/6
+        y_new = y + h/6 * (k1 + 2*k2 + 2*k3 + k4)
         y_values[i] = y_new
         
     return t_values, y_values
 
-@njit
-def rk4_tol(y0, t0, t_end, tol):
+def rk4_tol(y0, t0, t_end, tol, flag=0):
     h = init_h(y0, t0, t_end, tol, S)
     sol, ri_hat = np.ones((2, len(y0)), dtype=np.float64)
-
-    i = 0  # i fixes first near 0 ri_hat
+    
+    i = 0  # i fixes ri_hat
     while np.any(np.abs(ri_hat) > tol) or i < 5:
         t, y = rk4_cpu(y0, t0, t_end, h)
         h *= 0.5
         t_half, y_half = rk4_cpu(y0, t0, t_end, h)
 
         ri_hat = (y_half[-1] - y[-1]) / (pow(2, S) - 1)
-        sol = y_half[-1]
+        sol = y_half[-1] + ri_hat
         i += 1
-
-    return np.array([t_end]), sol[np.newaxis, :]
+        
+    if flag == 0:
+        return np.array([t_end]), sol[np.newaxis, :]
+    return h, t_half, y_half
