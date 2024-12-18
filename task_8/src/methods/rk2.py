@@ -90,8 +90,7 @@ def rk2_cpu(y0, t0, t_end, h):
 
     return t_values, y_values
 
-@njit
-def rk2_tol(y0, t0, t_end, tol):
+def rk2_tol(y0, t0, t_end, tol, flag=0):
     h = init_h(y0, t0, t_end, tol, S)
     sol, ri_hat = np.ones((2, len(y0)), dtype=np.float64)
     
@@ -103,4 +102,6 @@ def rk2_tol(y0, t0, t_end, tol):
         ri_hat = (y_half[-1] - y[-1]) / (pow(2, S) - 1)
         sol = y_half[-1] + ri_hat
 
-    return np.array([t_end]), sol[np.newaxis, :]
+    if flag == 0:
+        return np.array([t_end]), sol[np.newaxis, :]
+    return h, t_half, y_half

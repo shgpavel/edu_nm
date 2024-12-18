@@ -3,7 +3,7 @@ import numpy as np
 from aux.func import func
 from numba import njit
 
-H_TOL = 1e-3
+H_TOL = 1e-2
 
 @njit
 def init_h(y0: np.float64, t0: np.float64, t_end: np.float64,
