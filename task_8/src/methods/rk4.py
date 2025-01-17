@@ -1,9 +1,13 @@
 import numpy as np
-import pycuda.autoinit
-import pycuda.driver as drv
 
-from pycuda.compiler import SourceModule
-from numba import njit
+try:
+    import pycuda.autoinit
+    import pycuda.driver as drv
+
+    from pycuda.compiler import SourceModule
+    pycuda_avail = True
+except ImportError:
+    pycuda_avail = False
 
 from aux.var import A, B
 from aux.func import func
@@ -11,11 +15,12 @@ from aux.init_h import init_h
 
 S = 4
 
-with open("methods/kernels/rk4.cu", "r") as f:
-    kernel_code = f.read()
+if pycuda_avail:
+    with open("methods/kernels/rk4.cu", "r") as f:
+        kernel_code = f.read()
 
-module = SourceModule(kernel_code, options=["-use_fast_math"])
-rk4_cuda = module.get_function("rk4_cuda")
+    module = SourceModule(kernel_code, options=["-use_fast_math"])
+    rk4_cuda = module.get_function("rk4_cuda")
 
 def rk4(y0, t0, t_end, h):
     if len(y0) % 2 != 0:
@@ -53,7 +58,7 @@ def rk4(y0, t0, t_end, h):
     
     return t_values, y_values_host
 
-@njit
+
 def rk4_cpu(y0, t0, t_end, h):
 
     num_steps = int(np.ceil((t_end - t0) / h)) + 1

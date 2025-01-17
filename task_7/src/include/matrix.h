@@ -1,8 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 #ifndef MATRIX_H
 #define MATRIX_H
 
 #include <stddef.h>
-
 #include "vector.h"
 
 typedef struct matrix_s {
@@ -11,14 +12,16 @@ typedef struct matrix_s {
   vector *data;
 } matrix;
 
+#define matrix_val(m, row, col) (*(double *)matrix_get(m, row, col))
+
 void matrix_init(matrix *, size_t, size_t, size_t);
+void matrix_cinit(matrix *, size_t, size_t, size_t);
 void matrix_init_copy(matrix *, matrix *);
 void matrix_push(matrix *, void *);
 void matrix_change(matrix *, size_t, size_t, void *);
 void matrix_swap(matrix *, size_t, size_t, size_t, size_t);
 void matrix_row_swap(matrix *, size_t, size_t);
 void *matrix_get(matrix *, size_t, size_t);
-double matrix_val(matrix *, size_t, size_t);
 void matrix_delete(matrix *, size_t, size_t);
 void matrix_free(matrix *);
 void matrix_copy(matrix *, matrix *);

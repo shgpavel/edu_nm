@@ -1,14 +1,11 @@
 import numpy as np
 import math
 
-from numba import njit
 from aux.var import A, B
 
-@njit
 def func(t, y):
     return np.array([A * y[1], -B * y[0]], dtype=np.float64)
 
-@njit
 def analytical_solution(t):
     y1 = ((7 * math.sqrt(35) * math.pi * math.sin(math.sqrt(35) * t / 12)) / 60
      + (5 * math.pi * math.cos(math.sqrt(35) * t / 12)) / 12)

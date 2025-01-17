@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 #ifndef VECTOR_H
 #define VECTOR_H
 
@@ -16,6 +18,7 @@ void swap_xor_st(size_t *, size_t *);
 int on_heap(void *);
 
 void vector_init(vector *, size_t, size_t);
+void vector_cinit(vector *, size_t, size_t);
 void vector_init_copy(vector *, vector *);
 void vector_push(vector *, void *);
 void vector_change(vector *, size_t, void *);
