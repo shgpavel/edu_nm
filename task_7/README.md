@@ -5,10 +5,10 @@
 
 ## Extra:
 
-## Dependencies:    
-
+## Dependencies:
+	
 ## Build:
-    Do not try this is WIP
-    make
+	Do not try this is WIP
+	make
 ## Start:
-    ./build/main
+	./build/main

@@ -18,8 +18,8 @@ def rk2wc_cpu(y0, t0, t_end, tol, flag=0):
 
     h = init_h(y0, t0, t_end, tol, S)
     
-    if flag == 1:
-        ta, ha = [], []
+    if flag in (1, 4):
+        ta, ha, ea = [], [], []
 
     cnt = 0
     while t < t_end:
@@ -69,10 +69,11 @@ def rk2wc_cpu(y0, t0, t_end, tol, flag=0):
             t_values.append(t)
             y_values.append(y)
 
-        if flag == 1:
+        if flag in (1, 4):
             ta.append(t)
             ha.append(h)
-
+            ea.append(error)
+            
     t_values = np.array(t_values)
     y_values = np.array(y_values, dtype=np.float64)
 
@@ -80,4 +81,6 @@ def rk2wc_cpu(y0, t0, t_end, tol, flag=0):
         return ta, ha
     elif flag == 2:
         return cnt
+    elif flag == 4:
+        return ta, ha, ea
     return t_values, y_values

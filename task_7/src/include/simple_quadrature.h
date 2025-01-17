@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 #ifndef SIMPLE_QUADRATURE
 #define SIMPLE_QUADRATURE
 

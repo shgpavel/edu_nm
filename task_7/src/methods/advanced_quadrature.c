@@ -6,12 +6,22 @@
  * - Gauss
  */
 
-#include <math.h>
 #include <stdio.h>
+#include <tgmath.h>
 
-#include "../funcs/func.h"
-#include "../include/vector.h"
-#include "../include/cube_eq.h"
+#include "func.h"
+#include "vector.h"
+#include "cube_eq.h"
+#include "qr_avx.h"
+
+/* Wrong formulas XD */
+double calc_moment(size_t k) {
+	double inter_len = B - A;
+	double moment = pow(inter_len, (double)k + 1 - ALPHA - BETA)
+		* tgamma(k + 1 - ALPHA) * tgamma(1 - BETA)
+		/ tgamma(k + 2 - ALPHA - BETA);
+	return moment;
+}
 
 double newton_cotes(vector *points, size_t index) {
 
@@ -20,30 +30,27 @@ double newton_cotes(vector *points, size_t index) {
 	}
 	
 	double res = 0.0;
+
+	double moments[3];
+	for (size_t i = 0; i < 3; ++i) {
+		moments[i] = calc_moment(i);
+	}
+
 	double z1 = vector_val(points, index);
 	double z12 = (vector_val(points, index + 1) + vector_val(points, index)) / 2;
 	double z2 = vector_val(points, index + 1);
 
-	vector moments;
-	vector_init(&moments, 3, sizeof(double));
-	vector_fill_smth(&moments, 0.0);
-	
-	vector_val(&moments, 0) = (pow(z2-A, 1-ALPHA) - pow(z1-A, 1-ALPHA)) / (1 - ALPHA);
-	vector_val(&moments, 1) = (pow(z2-A, 2-ALPHA) - pow(z1-A, 2-ALPHA)) / (2 - ALPHA)
-		+ A * vector_val(&moments, 0);
-	vector_val(&moments, 2) = (pow(z2-A, 3-ALPHA) - pow(z1-A, 3-ALPHA)) / (3 - ALPHA)
-		+ 2 * A * vector_val(&moments, 1) - A*A * vector_val(&moments, 0);
+	double a1 = moments[2] - moments[1] * (z12 + z2) + moments[0] * z12 * z2;
+	a1 /= (z12 - z1) * (z2 - z1);
 
-	/*
-	vector xminus;
-	vector_init(&xminus, 2, sizeof(double));
-	vector_val(&xminus, 0) = -A;
-	vector_val(&xminus, 1) = 1;
-	
-	for (size_t i = 0; i < points->size - 1; ++i) {
-		res += func(vector_val(points, i));
-	}
-	*/
-	
+	double a2 = moments[2] - moments[1] * (z1 + z2) + moments[0] * z1 * z2;
+	a2 /= (z12 - z1) * (z2 - z12);
+	a2 = -a2;
+
+	double a3 = moments[2] - moments[1] * (z12 + z1) + moments[0] * z12 * z1;
+	a3 /= (z2 - z12) * (z2 - z1);
+
+	res = a1 * func(z1) + a2 * func(z12) + a3 * func(z2);
+
 	return res;
 }
