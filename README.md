@@ -21,10 +21,6 @@ function values
 ## task_2
 Exact and iterative methods for solving systems of linear
 algebraic equations (SLAE)
-<details>
-  <summary>README (test)</summary>
-  <iframe src="task_2/README.md" style="width:100%; height:400px;"></iframe>
-</details>
 
 ## task_3
 Newton's method for solving nonlinear equations and
