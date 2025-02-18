@@ -12,7 +12,7 @@
 
 static inline double func(double x) {
   return 3.5 * cos(0.7 * x) * exp(-5*x/3) +
-      2.4 * sin(5.5 * x) * exp(-0.75*x) + 5;
+      2.4 * sin(5.5 * x) * exp(-3*x/4) + 5;
 }
 
 #endif
