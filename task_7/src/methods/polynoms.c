@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <jemalloc/jemalloc.h>
+#include "polynoms.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <math.h>
 #include <complex.h>
+#include <jemalloc/jemalloc.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include "vector.h"
-#include "polynoms.h"
 
 void fft(complex double *x, size_t n, size_t inverse) {
 	if (n <= 1) return;
@@ -23,7 +23,8 @@ void fft(complex double *x, size_t n, size_t inverse) {
 	fft(even, n / 2, inverse);
 	fft(odd, n / 2, inverse);
 
-	complex double W_N = cexp((2 * M_PI * I) / (double)n * (inverse ? 1 : -1));
+	complex double W_N =
+	    cexp((2 * M_PI * I) / (double)n * (inverse ? 1 : -1));
 	complex double W = 1;
 	for (size_t k = 0; k < n / 2; k++) {
 		complex double t = W * odd[k];
@@ -34,18 +35,17 @@ void fft(complex double *x, size_t n, size_t inverse) {
 }
 
 vector poly_mult(size_t count, ...) {
-
 	vector res;
 	va_list ap;
 	size_t total_size = 0;
-	
+
 	va_start(ap, count);
 	for (size_t i = 0; i < count; ++i) {
 		vector *poly = va_arg(ap, vector *);
 		total_size += poly->size;
 	}
 	va_end(ap);
-				
+
 	size_t result_deg = total_size - (count - 1);
 	size_t n = 1;
 	while (n < result_deg) {
@@ -54,9 +54,8 @@ vector poly_mult(size_t count, ...) {
 
 	vector_init(&res, result_deg, sizeof(double));
 
-	
 	complex double *fft_poly =
-		(complex double *)calloc(n, sizeof(complex double));
+	    (complex double *)calloc(n, sizeof(complex double));
 	for (size_t i = 0; i < n; ++i) {
 		fft_poly[i] = 1.0;
 	}
@@ -65,7 +64,7 @@ vector poly_mult(size_t count, ...) {
 	for (size_t i = 0; i < count; ++i) {
 		vector *poly = va_arg(ap, vector *);
 		complex double *temp_poly =
-			(complex double *)calloc(n, sizeof(complex double));
+		    (complex double *)calloc(n, sizeof(complex double));
 		for (size_t j = 0; j < poly->size; ++j) {
 			temp_poly[j] = vector_val(poly, j);
 		}
@@ -76,8 +75,8 @@ vector poly_mult(size_t count, ...) {
 		free(temp_poly);
 	}
 	va_end(ap);
-	
-  fft(fft_poly, n, 1);
+
+	fft(fft_poly, n, 1);
 
 	for (size_t i = 0; i < result_deg; ++i) {
 		double tmp = (creal(fft_poly[i]) / (double)n);
@@ -88,10 +87,9 @@ vector poly_mult(size_t count, ...) {
 }
 
 vector poly_sum(size_t count, ...) {
-
 	va_list args, args_copy;
 	va_copy(args_copy, args);
-	
+
 	size_t max_size = 0;
 	va_start(args_copy, count);
 	for (size_t i = 0; i < count; ++i) {
@@ -103,7 +101,7 @@ vector poly_sum(size_t count, ...) {
 	vector res;
 	vector_init(&res, max_size, sizeof(double));
 	vector_fill_smth(&res, 0.0);
-	
+
 	va_start(args, count);
 	for (size_t i = 0; i < count; ++i) {
 		vector *vec = va_arg(args, vector *);

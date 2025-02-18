@@ -3,8 +3,7 @@
 #ifndef ADVANCED_QUADRATURE
 #define ADVANCED_QUADRATURE
 
-#include "vector.h"
-
-double newton_cotes(vector *, size_t);
+double composite_newton_cotes(size_t);
+double composite_gauss(size_t);
 
 #endif

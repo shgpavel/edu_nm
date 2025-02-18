@@ -6,6 +6,6 @@
 #include "vector.h"
 #include "matrix.h"
 
-vector* qr_avx(matrix *, vector *);
+vector *qr_avx(matrix *, vector *);
 
 #endif
