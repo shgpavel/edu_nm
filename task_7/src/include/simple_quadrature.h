@@ -3,12 +3,9 @@
 #ifndef SIMPLE_QUADRATURE
 #define SIMPLE_QUADRATURE
 
-#include "vector.h"
-
-double quad_left(vector *);
-double quad_mid(vector *);
-double quad_trapz(vector *);
-double quad_simpson(vector *);
-
+double quad_left(double, double);
+double quad_mid(double, double);
+double quad_trapz(double, double);
+double quad_simpson(double, double);
 
 #endif
