@@ -9,49 +9,20 @@
  */
 
 #include <stdio.h>
-
 #include "func.h"
-#include "vector.h"
 
-double quad_left(vector *points) {
-	double res = 0.0;
-	double h = vector_val(points, 1) - vector_val(points, 0);
-	for (size_t i = 0; i < points->size - 1; ++i) {
-		res += func(vector_val(points, i));
-	}
-
-	return h * res;
+double quad_left(double a, double b) {
+	return (b - a) * func(a);
 }
 
-double quad_mid(vector *points) {
-	double res = 0.0;
-	double h = vector_val(points, 1) - vector_val(points, 0);
-	for (size_t i = 0; i < points->size - 1; ++i) {
-		res += func(vector_val(points, i + 1) - h / 2);
-	}
-
-	return h * res;
+double quad_mid(double a, double b) {
+	return (b - a) * func((a + b) / 2);
 }
 
-double quad_trapz(vector *points) {
-	double res = 0.0;
-	double h = vector_val(points, 1) - vector_val(points, 0);
-	for (size_t i = 0; i < points->size - 1; ++i) {
-		res += func(vector_val(points, i)) +
-		       func(vector_val(points, i + 1));
-	}
-
-	return res * h / 2;
+double quad_trapz(double a, double b) {
+	return (func(a) + func(b)) * (b - a) / 2;
 }
 
-double quad_simpson(vector *points) {
-	double res = 0.0;
-	double h = vector_val(points, 1) - vector_val(points, 0);
-	for (size_t i = 0; i < points->size - 2; i += 2) {
-		res += func(vector_val(points, i)) +
-		       4 * func(vector_val(points, i + 1)) +
-		       func(vector_val(points, i + 2));
-	}
-
-	return res * h / 3;
+double quad_simpson(double a, double b) {
+	return (func(a) + 4 * func((a + b)/2) + func(b)) * (b - a) / 6;
 }

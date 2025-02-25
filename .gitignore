@@ -3,11 +3,9 @@ task_5/src/draw/node_modules
 
 related_cache
 **/src/test/**
+**/src/build/**
 
-task_4/src/build
-task_5/src/build
-task_6/src/build
-task_7/src/build
+task_7/src/out
 task_8/src/venv
 
 task_8/src/methods/__pycache__

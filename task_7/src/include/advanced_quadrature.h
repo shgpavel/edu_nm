@@ -3,7 +3,10 @@
 #ifndef ADVANCED_QUADRATURE
 #define ADVANCED_QUADRATURE
 
-double composite_newton_cotes(size_t);
-double composite_gauss(size_t);
+#include <stddef.h>
+
+double newton_cotes(double, double);
+double gauss_quad(double, double);
+double newton_cotes_nxn(size_t, double, double);
 
 #endif

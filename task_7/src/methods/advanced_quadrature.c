@@ -6,11 +6,13 @@
  * - Gauss
  */
 
+#include "advanced_quadrature.h"
 #include <jemalloc/jemalloc.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 
+#include "partitions.h"
 #include "cube_eq.h"
 #include "func.h"
 #include "matrix.h"
@@ -18,7 +20,12 @@
 #include "vector.h"
 #include "vector_avx.h"
 
+#define CHECK_NEG
 #define N 3
+
+/*
+ * uint64_t combination(int n, int k)
+*/
 
 int combinations(int n, int k) {
 	int Bm[n + 1][n + 1];
@@ -165,30 +172,46 @@ double gauss_quad(double a, double b) {
 	return res;
 }
 
-double composite_newton_cotes(size_t n) {
-	double step = (B - A) / n;
-	double total = 0.0;
+double newton_cotes_nxn(size_t n, double a, double b) {
+	vector points = linspace(a, b, n);
+	
+	vector moments;
+	vector_cinit(&moments, n, sizeof(double));
 	for (size_t i = 0; i < n; ++i) {
-		double ai = A + i * step;
-		double bi = ai + step;
-		total += newton_cotes(ai, bi);
+		vector_val(&moments, i) = calc_moment(i, b) - calc_moment(i, a);
 	}
-	return total;
-}
 
-double composite_gauss(size_t n) {
-	double step = (B - A) / n;
-	double total = 0.0;
+	matrix vtt;
+	matrix_cinit(&vtt, n, n, sizeof(double));
 	for (size_t i = 0; i < n; ++i) {
-		double ai = A + i * step;
-		double bi = ai + step;
-		total += gauss_quad(ai, bi);
+		for (size_t j = 0; j < n; ++j) {
+			matrix_val(&vtt, i, j) = pow(vector_val(&points, j), i);
+		}
 	}
-	return total;
-}
+	
+	vector fvals;
+	vector_cinit(&fvals, n, sizeof(double));
+	for (size_t i = 0; i < fvals.size; ++i) {
+		vector_val(&fvals, i) = func(vector_val(&points, i));
+	}
+	vector_free(&points);
 
-int main() {
-	printf("Newton_Cotes: %lf\n", composite_newton_cotes(10));
-	printf("Gauss_Quad: %lf\n", composite_gauss(10));
-	return 0;
+	vector *sol = qr_avx(&vtt, &moments);
+	matrix_free(&vtt);
+	vector_free(&moments);
+
+#ifdef CHECK_NEG
+	for (size_t i = 0; i < sol->size; ++i) {
+		if (vector_val(sol, i) < 0) {
+			printf("Info: Newton-Cotes nxn less than zero value in A's at [%zu]\n", n);
+		}
+	}
+#endif
+	
+	double res = vector_scalar_prod_avx(sol, &fvals);
+
+	vector_free(&fvals);
+	vector_free(sol);
+	free(sol);
+	return res;	
 }
