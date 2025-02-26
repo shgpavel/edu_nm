@@ -10,6 +10,8 @@ Welcome to my Numerical Methods Repository!
 - [Function approximation](#task_6)
 - [Integrals](#task_7)
 - [Differential equations](#task_8)
+- [Matrix multiplication](#task_mm)
+- [Optimization](#task_opt)
 - [Memory manager](#memory_proto)
 - [Scheduler](#sched)
 - [Related](#related)
@@ -42,6 +44,12 @@ Calculus of definite integral, CIQF-s
 
 ## task_8
 Runge–Kutta methods 2nd and 4th ord (plus gpu)
+
+## task_mm
+Speeding up matrix multiplication on CPU
+
+## task_opt
+Optimization methods course
 
 ## memory_proto
 Memory manager (originally designed for task_7)
