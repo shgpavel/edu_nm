@@ -79,6 +79,19 @@ void matrix_on_matrix(matrix *a, matrix *b, matrix *c) {
 	}
 }
 
+void matrix_transpose(matrix *dest, matrix *src) {
+	if (src->cols != dest->rows
+			|| src->rows != dest->cols) {
+		return ;
+	}
+	
+	for (size_t i = 0; i < dest->rows; ++i) {
+		for (size_t j = 0; j < dest->cols; ++j) {
+			matrix_val(dest, i, j) = matrix_val(src, j, i);
+		}
+	}
+}
+
 /*
 void matrix_change(matrix *m, size_t row, size_t col, void *data) {
         if (row < m->rows && col < m->cols) {
@@ -132,16 +145,7 @@ double matrix_norm_inf(matrix *a) {
         return norm_inf;
 }
 
-matrix *matrix_transpose(matrix *a) {
-        matrix *res = (matrix *)malloc(sizeof(matrix));
-        matrix_init(res, a->cols, a->rows, a->data->type_size);
-        for (size_t i = 0; i < res->rows; ++i) {
-                for (size_t j = 0; j < res->cols; ++j) {
-                        matrix_push(res, matrix_get(a, j, i));
-                }
-        }
-        return res;
-}
+
 
 vector *matrix_on_vector(matrix *a, vector *v) {
         if (v->size != a->cols) return NULL;

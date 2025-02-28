@@ -26,6 +26,7 @@ void   matrix_destroy_impl(size_t, ...);
 void   matrix_print(matrix *);
 
 void   matrix_on_matrix(matrix *, matrix *, matrix *);
+void   matrix_transpose(matrix *, matrix *);
 
 /*
 void matrix_change(matrix *, size_t, size_t, void *);
@@ -35,7 +36,6 @@ void matrix_delete(matrix *, size_t, size_t);
 void matrix_copy(matrix *, matrix *);
 void matrix_fill_smth(matrix *, double);
 double matrix_norm_inf(matrix *);
-matrix *matrix_transpose(matrix *);
 vector *matrix_on_vector(matrix *, vector *);
 void matrix_normalize_vect(matrix *, vector *);
 matrix *matrix_on_matrix(matrix *, matrix *);

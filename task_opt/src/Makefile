@@ -1,7 +1,7 @@
-CFLAGS := -Wall -Wextra -O3 -std=c23 -march=tigerlake $(CFLAGS)
-LDFLAGS := -lc -lm -lpthread -lopenblas -fuse-ld=mold $(LDFLAGS)
+CFLAGS := -Wall -Wextra -O3 -std=c23 -march=tigerlake -fsanitize=address -fsanitize=undefined $(CFLAGS)
+LDFLAGS := -lc -lm -fuse-ld=mold -fsanitize=address -fsanitize=undefined $(LDFLAGS)
 
-# -fsanitize=address -fsanitize=undefined
+# 
 
 CC = clang
 LD = clang
@@ -10,7 +10,7 @@ LD_LIBRARY_PATH = -L/usr/lib
 INCL_PATH = -Iinclude/
 
 OUT_O_DIR = build
-SRCS_DIRS = . methods types
+SRCS_DIRS = . methods
 SRCS = $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
 OBJS := $(addprefix $(OUT_O_DIR)/,$(SRCS:.c=.o))
 DEPS = $(OBJS:.o=.d)
