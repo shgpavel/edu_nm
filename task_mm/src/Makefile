@@ -1,4 +1,4 @@
-CFLAGS := -Wall -Wextra -O3 -std=c23 -march=tigerlake $(CFLAGS)
+CFLAGS := -Wall -Wextra -O3 -std=c23 -march=native $(CFLAGS)
 LDFLAGS := -lc -lm -lpthread -lopenblas -fuse-ld=mold $(LDFLAGS)
 
 # -fsanitize=address -fsanitize=undefined

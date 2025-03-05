@@ -27,7 +27,7 @@ void   matrix_print(matrix *);
 
 void   matrix_on_matrix(matrix *, matrix *, matrix *);
 void   matrix_transpose(matrix *, matrix *);
-
+int    matrix_equal(matrix *, matrix *);
 /*
 void matrix_change(matrix *, size_t, size_t, void *);
 void matrix_swap(matrix *, size_t, size_t, size_t, size_t);

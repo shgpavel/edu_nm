@@ -1,4 +1,4 @@
-CFLAGS := -Wall -Wextra -O3 -std=c23 -march=tigerlake -fsanitize=address -fsanitize=undefined $(CFLAGS)
+CFLAGS := -Wall -Wextra -O3 -std=c23 -march=native -fsanitize=address -fsanitize=undefined $(CFLAGS)
 LDFLAGS := -lc -lm -fuse-ld=mold -fsanitize=address -fsanitize=undefined $(LDFLAGS)
 
 # 
@@ -8,6 +8,10 @@ LD = clang
 
 LD_LIBRARY_PATH = -L/usr/lib
 INCL_PATH = -Iinclude/
+
+ifeq ($(DEBUG_INFO),1)
+	CFLAGS += -DDEBUG_INFO
+endif
 
 OUT_O_DIR = build
 SRCS_DIRS = . methods

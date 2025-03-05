@@ -2,9 +2,10 @@
 
 #include <stdio.h>
 
-#include "golden.h"
 #include "func.h"
-#include "include/dichotomy.h"
+#include "golden.h"
+#include "dichotomy.h"
+#include "direct_search.h"
 
 int main() {
 	const double a = 0;
@@ -14,11 +15,18 @@ int main() {
 	
 	printf(";; Golden ratio minimizer\n");
 	double x = golden(a, b, epsilon);
-	printf("x = %.3a f(x) = %.3a itr = %zu\n", x, func(x), 1);
+	printf("x = %.3a f(x) = %.3a\n", x, func(x));
 	printf(";;\n\n");
 
+	/*
 	printf(";; Dichotomy minimizer\n");
 	x = dichotomy_method(a, b, epsilon, delta);
-	printf("x = %a f(x) = %a itr = %zu\n", x, func(x), 1);
+	printf("x = %a f(x) = %a\n", x, func(x));
 	printf(";;\n\n");
+	*/
+	
+	printf(";; Direct search minimizer\n");
+	x = direct_search(a, b, epsilon);
+	printf("x = %a f(x) = %a\n", x, func(x));
+	printf(";;\n");
 }

@@ -18,7 +18,6 @@ typedef void *(*reallocator)(void *, size_t);
 #define COUNT_ARGS(...) COUNT_ARGS_IMPL(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 #define vector_destroy(...) vector_destroy_impl(COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-
 void vector_create(vector *, size_t, allocator);
 void vector_ccreate(vector *, size_t, allocator);
 void vector_create_copy(vector *, vector *, allocator);

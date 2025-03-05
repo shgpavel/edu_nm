@@ -3,6 +3,6 @@
 #ifndef DIRECT_SEARCH
 #define DIRECT_SEARCH
 
-double direct_search(double, double, double);
+double direct_search(double, double);
 
 #endif

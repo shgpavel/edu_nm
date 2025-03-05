@@ -61,24 +61,6 @@ void matrix_print(matrix *m) {
 	}
 }
 
-void matrix_on_matrix(matrix *a, matrix *b, matrix *c) {
-	/* TODO more checks */
-	if (a->cols != b->rows) {
-		return;
-	}
-
-	for (size_t i = 0; i < a->rows; ++i) {
-		for (size_t j = 0; j < b->cols; ++j) {
-			double sum = 0.0;
-			for (size_t k = 0; k < a->cols; ++k) {
-				sum +=
-				    matrix_val(a, i, k) * matrix_val(b, k, j);
-			}
-			matrix_val(c, i, j) = sum;
-		}
-	}
-}
-
 void matrix_transpose(matrix *dest, matrix *src) {
 	if (src->cols != dest->rows
 			|| src->rows != dest->cols) {
@@ -90,6 +72,25 @@ void matrix_transpose(matrix *dest, matrix *src) {
 			matrix_val(dest, i, j) = matrix_val(src, j, i);
 		}
 	}
+}
+
+int matrix_equal(matrix *a, matrix *b) {
+	if (a->rows != b->rows || a->cols != b->cols) {
+		return -1;
+	}
+
+	int rly = 1;
+	for (size_t i = 0; i < a->rows; ++i) {
+		for (size_t j = 0; j < a->cols; ++j) {
+			if (fabs(matrix_val(a, i, j)
+							 - matrix_val(b, i, j)) > 1e-3) {
+				rly = -1;
+			}
+		}
+	}
+
+	if (rly > 0) { return 1; }
+	return -1;
 }
 
 /*
