@@ -27,21 +27,4 @@ void vector_push(vector *, double, reallocator);
 void vector_assign(vector *, vector *, allocator, reallocator);
 void vector_destroy_impl(size_t count, ...);
 
-/*
-void vector_change(vector *, size_t, void *);
-
-void vector_swap(vector *, size_t, size_t);
-void *vector_get(vector *, size_t);
-void vector_delete(vector *, size_t);
-void vector_from_heap_to_stack(vector *, vector *);
-void vector_swap_eff(vector *, vector *);
-void vector_print_pairs(vector *);
-void vector_fill_smth(vector *, double);
-void vector_reverse(vector *);
-void vector_mult(vector *v, double a);
-double vector_diff(vector *, vector *);
-double vector_sclr_prod(vector *, vector *);
-void vector_normalize(vector *);
-*/
-
 #endif

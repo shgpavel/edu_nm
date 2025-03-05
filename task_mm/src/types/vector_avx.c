@@ -13,9 +13,9 @@ void print_avxreg(__m256d r) {
 	double unpcd[4] __attribute__((aligned(64)));
 	_mm256_store_pd(unpcd, r);
 	for (size_t i = 0; i < 3; ++i) {
-		printf("%lf ", unpcd[i]);
+		printf("%lg ", unpcd[i]);
 	}
-	printf("%lf\n", unpcd[3]);
+	printf("%lg\n", unpcd[3]);
 }
 
 double vector_scalar_prod_avx(vector *v, vector *c) {

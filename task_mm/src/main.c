@@ -2,6 +2,7 @@
 
 #include <jemalloc/jemalloc.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 #include "include/matrix.h"
@@ -20,10 +21,10 @@ int generate_test(matrix *a, matrix *b, size_t n) {
 	return 0;
 }
 
-int compare_doubles(const void* a, const void* b) {
-	double arg1 = *(const double*)a;
-	double arg2 = *(const double*)b;
-  
+int compare_doubles(const void *a, const void *b) {
+	double arg1 = *(const double *)a;
+	double arg2 = *(const double *)b;
+
 	if (arg1 < arg2) {
 		return -1;
 	} else if (arg1 > arg2) {
@@ -32,18 +33,26 @@ int compare_doubles(const void* a, const void* b) {
 	return 0;
 }
 
+void *aalloc(size_t size) {
+	const size_t alignment = 64;
+	if (size % alignment != 0) {
+		size = (size + alignment - 1) & ~(alignment - 1);
+	}
+	return aligned_alloc(alignment, size);
+}
+
 typedef void (*matrix_mult_func)(matrix *, matrix *, matrix *);
 int bench(matrix_mult_func multyk, size_t n, size_t tests) {
 	matrix a, b, c;
-	matrix_ccreate(&a, n, n, malloc);
-	matrix_ccreate(&b, n, n, malloc);
-	matrix_ccreate(&c, n, n, malloc);
-	
+	matrix_ccreate(&a, n, n, aalloc);
+	matrix_ccreate(&b, n, n, aalloc);
+	matrix_ccreate(&c, n, n, aalloc);
+
 	generate_test(&a, &b, n);
 
 	vector times;
-	vector_ccreate(&times, tests, malloc);
-	
+	vector_ccreate(&times, tests, aalloc);
+
 	for (size_t i = 0; i < tests; ++i) {
 		clock_t start = clock();
 		multyk(&a, &b, &c);
@@ -68,37 +77,72 @@ int bench(matrix_mult_func multyk, size_t n, size_t tests) {
 	if (p95idx == times.size) {
 		--p95idx;
 	}
-	printf("times <sec>\tavg: %lg\t95p: %lg\t1p: %lg\n",
-				 avg, times.data[p95idx], low1p);
+	printf("times <sec>\tavg: %lg\t95p: %lg\t1p: %lg\n", avg,
+	       times.data[p95idx], low1p);
 
 	matrix c_et;
-	matrix_ccreate(&c_et, n, n, malloc);
+	matrix_ccreate(&c_et, n, n, aalloc);
+
+#ifdef DEBUG
 	matrix_mult_openblas(&a, &b, &c_et);
-	
 	if (matrix_equal(&c, &c_et) < 0) {
 		printf("Error: mult function results are incorrect!\n");
 	}
-	
+#endif
+
 	matrix_destroy(&a, &b, &c, &c_et);
 	vector_destroy(&times);
 	return 0;
 }
 
-
 int main() {
 	srand(time(NULL));
 
+	/*
 	printf(";; OpenBLAS res\n");
 	bench(matrix_mult_openblas, 1000, 100);
 	printf(";;\n\n");
 
 	printf(";; MM naive res\n");
-	bench(matrix_mult_naive, 50, 10);
+	bench(matrix_mult_naive, 1024, 10);
 	printf(";;\n\n");
-	
+
 	printf(";; MM transp res\n");
-	bench(matrix_mult_fast, 50, 10);
+	bench(matrix_mult_fast, 1024, 10);
 	printf(";;\n");
-	
+	*/
+
+	const size_t n = 16;
+
+	matrix a, b, c, btr;
+	matrix_ccreate(&a, n, n, aalloc);
+	matrix_ccreate(&b, n, n, aalloc);
+	matrix_ccreate(&c, n, n, aalloc);
+
+	matrix_ccreate(&btr, n, n, aalloc);
+
+	for (size_t i = 0; i < a.rows; ++i) {
+		for (size_t j = 0; j < a.cols; ++j) {
+			scanf("%lf", &matrix_val(&a, i, j));
+		}
+	}
+
+	for (size_t i = 0; i < b.rows; ++i) {
+		for (size_t j = 0; j < b.cols; ++j) {
+			scanf("%lf", &matrix_val(&b, i, j));
+		}
+	}
+
+	matrix_print(&a);
+	printf("\n");
+	matrix_print(&b);
+	printf("\n");
+
+	matrix_transpose(&btr, &b);
+
+	matrix_mult_fast(&a, &btr, &c);
+	matrix_print(&c);
+
+	matrix_destroy(&a, &b, &c, &btr);
 	return 0;
 }
