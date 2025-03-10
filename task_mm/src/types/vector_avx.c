@@ -1,15 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include "vector_avx.h"
-
 #include <immintrin.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector.h>
+#include <vector_avx.h>
 
-#include "vector.h"
-
-void print_avxreg(__m256d r) {
+void avxreg_print(__m256d r) {
 	double unpcd[4] __attribute__((aligned(64)));
 	_mm256_store_pd(unpcd, r);
 	for (size_t i = 0; i < 3; ++i) {
@@ -18,6 +16,15 @@ void print_avxreg(__m256d r) {
 	printf("%lg\n", unpcd[3]);
 }
 
+double avxreg_sum(__m256d r) {
+	r = _mm256_hadd_pd(r, r);
+	return ((double *)&r)[0] + ((double *)&r)[2];
+}
+
+/*
+ * TODO
+ * delete this funcs
+ */
 double vector_scalar_prod_avx(vector *v, vector *c) {
 	size_t i = 0;
 	double res = 0.0;

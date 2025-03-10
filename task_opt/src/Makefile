@@ -1,25 +1,25 @@
-CFLAGS := -Wall -Wextra -O3 -std=c23 -march=native -fsanitize=address -fsanitize=undefined $(CFLAGS)
-LDFLAGS := -lc -lm -fuse-ld=mold -fsanitize=address -fsanitize=undefined $(LDFLAGS)
+CFLAGS  := -Wall -Wextra -O3 -std=c23 -march=native $(CFLAGS)
+LDFLAGS := -lc -lm -fuse-ld=mold $(LDFLAGS)
 
-# 
+# -fsanitize=address -fsanitize=undefined 
 
 CC = clang
 LD = clang
 
-LD_LIBRARY_PATH = -L/usr/lib
-INCL_PATH = -Iinclude/
+LD_LIBRARY_PATH := -L/usr/lib
+INCL_PATH 			:= -Iinclude/
+
+OUT_O_DIR := build
+SRCS_DIRS := . methods
+SRCS			:= $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
+OBJS			:= $(addprefix $(OUT_O_DIR)/,$(SRCS:.c=.o))
+DEPS			:= $(OBJS:.o=.d)
 
 ifeq ($(DEBUG_INFO),1)
 	CFLAGS += -DDEBUG_INFO
 endif
 
-OUT_O_DIR = build
-SRCS_DIRS = . methods
-SRCS = $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
-OBJS := $(addprefix $(OUT_O_DIR)/,$(SRCS:.c=.o))
-DEPS = $(OBJS:.o=.d)
-
-.PHONY: all
+.PHONY: all clean
 all: $(OUT_O_DIR)/main
 
 $(OUT_O_DIR)/main: $(OBJS)
@@ -33,7 +33,6 @@ $(DEPS): $(OUT_O_DIR)/%.d: %.c
 	@mkdir -p $(@D)
 	$(CC) -E $(CFLAGS) $(INCL_PATH) $< -MM -MT $(@:.d=.o) > $@
 
-.PHONY: clean
 clean:
 	rm -rf $(OBJS) $(DEPS) $(OUT_O_DIR)
 

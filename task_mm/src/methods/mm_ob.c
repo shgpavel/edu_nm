@@ -1,15 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/*
- * Matrix multiplication
- */
+/* Matrix multiplication implementation */
 
-#include <emmintrin.h>
 #include <immintrin.h>
+#include <matrix.h>
 #include <openblas/cblas.h>
 #include <vector_avx.h>
-
-#include "matrix.h"
 
 void matrix_mult_openblas(matrix *a, matrix *b, matrix *c) {
 	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->rows, a->rows,
@@ -34,35 +30,74 @@ void matrix_mult_naive(matrix *a, matrix *b, matrix *c) {
 	}
 }
 
-/* TODO
+/*
+ *
+ * function assumes
+ * b is transposed,
+ * size_rows(a) = size_rows(b) = size_rows(c),
+ * size_cols(a) = size_cols(b) = size_cols(c)
+ *
+ * TODO
  * any matrix
- * function assumes b is transposed
+ * 1103 4x4 8x8
+ *
  */
+
 void matrix_mult_fast(matrix *a, matrix *b, matrix *c) {
 	if (a->cols != b->rows || a->rows != b->cols || c->rows != a->rows ||
 	    c->cols != b->cols || a->rows % 4 != 0 || a->cols % 4 != 0) {
 		return;
 	}
 
-	for (size_t i = 0; i < a->rows; ++i) {
-		for (size_t j = 0; j < b->cols; ++j) {
-			// for (size_t k = 0; k < 4; ++k) {
-			__m256 left_row = _mm256_load_pd(&a->data->data[4 * i]);
-			__m256 right_row =
-			    _mm256_load_pd(&b->data->data[4 * j]);
-			__m256 mult = _mm256_mul_pd(left_row, right_row);
+	const size_t block = 4;
+	const size_t binr = a->rows / block;
 
-			// print_avxreg(mult);
-			// printf("\n");
+	const size_t bblock = block * block;
+	const size_t rowsft = binr * block;
+	/* extra row shift */
+	size_t inksft = 0;
 
-			__m128d low = _mm256_castpd256_pd128(mult);
-			__m128d high = _mm256_extractf128_pd(mult, 1);
+	for (size_t k = 0; k < block; ++k) {
+		if (k % binr == 0 && k != 0) {
+			inksft += block * (block - 1) * binr;
+		}
+		for (size_t h = 0; h < binr; ++h) {
+			/* 4x4 block mult */
+			for (size_t i = 0; i < block; ++i) {
+				for (size_t j = 0; j < block; ++j) {
+					size_t left_index =
+					    rowsft * i + h * block;
+					size_t right_index =
+					    rowsft * j + h * block;
 
-			/* TODO find better way to get sum of AVX reg */
-			__m128d sum_r = _mm_add_pd(low, high);
-			matrix_val(c, i, j) =
-			    _mm_cvtsd_f64(sum_r) +
-			    _mm_cvtsd_f64(_mm_unpackhi_pd(sum_r, sum_r));
+					if (k % binr == 0 && k != 0) {
+						left_index += bblock * binr;
+					} else if (k != 0) {
+						right_index += bblock * binr;
+					}
+
+					__m256d left_row = _mm256_load_pd(
+					    &a->data->data[left_index]);
+					__m256d right_row = _mm256_load_pd(
+					    &b->data->data[right_index]);
+
+					// avxreg_print(left_row);
+					// avxreg_print(right_row);
+					// printf("i=%zu j=%zu h=%zu k=%zu li
+					// %zu rj %zu\n\n", i, j, h, k,
+					//			 left_index,
+					//right_index);
+					__m256d mult =
+					    _mm256_mul_pd(left_row, right_row);
+
+					/* i * cols + j + block_size * k */
+					matrix_direct(
+					    c, i * c->cols + j + k * block +
+					           inksft) += avxreg_sum(mult);
+					// printf("%zu %zu\n", i * c->cols + j +
+					// k * block + inksft, inksft);
+				}
+			}
 		}
 	}
 }

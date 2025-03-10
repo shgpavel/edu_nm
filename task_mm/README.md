@@ -3,19 +3,20 @@
 	Comparing with OpenBLAS
 
 ## Status
-	Started
+	In progress
 
 ## Contains
 	src/types/vector.c      -- updated vector lib
 	src/types/matrix.c      -- updated matrix lib
 	src/types/vector_avx.c  -- some extensions for vector
-	src/main.c              -- build matrix & test
+	src/methods/mm_ob.c     -- actual matrix multiplication
+	src/main.c              -- build matrix & test them
 
 ## Dependencies
 	clang     >= 19.1.7
 	jemalloc  >= 5.3
 	OpenBLAS  >= 0.3.28
-	Intel CPU >= Haswell
+	AVX CPU
 	libc libm
 
 ## Build

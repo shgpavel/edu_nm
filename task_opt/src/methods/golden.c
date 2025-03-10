@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 #include "func.h"
 
@@ -13,7 +13,7 @@ double golden(double a, double b, double epsilon) {
 	}
 
 	size_t itr = 1;
-	
+
 	const double phi = (1 + sqrt(5)) / 2;
 	const double inv = 1 / phi;
 
@@ -24,10 +24,10 @@ double golden(double a, double b, double epsilon) {
 	double f2 = func(d);
 
 #ifdef DEBUG_INFO
-	printf("i: %zu c: %.3a d: %.3a f(c): %.3a f(d-c): %.3a\n",
-				 itr, c, d, func(c), func(d-c));
+	printf("i: %zu c: %.3a d: %.3a f(c): %.3a f(d-c): %.3a\n", itr, c, d,
+	       func(c), func(d - c));
 #endif
-	
+
 	while ((b - a) > epsilon) {
 		if (f1 < f2) {
 			b = d;
@@ -43,12 +43,12 @@ double golden(double a, double b, double epsilon) {
 			f2 = func(d);
 		}
 		++itr;
-		
+
 #ifdef DEBUG_INFO
-		printf("i: %zu c: %.3a d: %.3a f(c): %.3a f(d-c): %.3a\n",
-					 itr, c, d, func(c), func(d-c));
+		printf("i: %zu c: %.3a d: %.3a f(c): %.3a f(d-c): %.3a\n", itr,
+		       c, d, func(c), func(d - c));
 #endif
 	}
-	
+
 	return (a + b) / 2;
 }

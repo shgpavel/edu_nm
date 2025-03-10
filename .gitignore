@@ -10,3 +10,6 @@ task_8/src/venv
 
 task_8/src/methods/__pycache__
 task_8/src/aux/__pycache__
+
+task_mm/src/.clangd
+task_opt/src/.clangd

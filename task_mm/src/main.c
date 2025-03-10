@@ -1,15 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <jemalloc/jemalloc.h>
+#include <matrix.h>
+#include <mm_ob.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-#include "include/matrix.h"
-#include "matrix.h"
-#include "mm_ob.h"
-#include "vector.h"
-#include "vector_avx.h"
+#include <vector.h>
+#include <vector_avx.h>
 
 int generate_test(matrix *a, matrix *b, size_t n) {
 	for (size_t i = 0; i < n; ++i) {
@@ -112,7 +110,7 @@ int main() {
 	printf(";;\n");
 	*/
 
-	const size_t n = 16;
+	const size_t n = 8;
 
 	matrix a, b, c, btr;
 	matrix_ccreate(&a, n, n, aalloc);
@@ -135,10 +133,10 @@ int main() {
 
 	matrix_print(&a);
 	printf("\n");
-	matrix_print(&b);
-	printf("\n");
 
 	matrix_transpose(&btr, &b);
+	matrix_print(&btr);
+	printf("\n");
 
 	matrix_mult_fast(&a, &btr, &c);
 	matrix_print(&c);

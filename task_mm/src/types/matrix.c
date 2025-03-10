@@ -1,13 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include "matrix.h"
-
 #include <jemalloc/jemalloc.h>
 #include <math.h>
+#include <matrix.h>
 #include <stdarg.h>
 #include <stdio.h>
-
-#include "vector.h"
+#include <vector.h>
 
 void matrix_create(matrix *m, size_t rows, size_t cols, allocator a) {
 	m->rows = rows;
