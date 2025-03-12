@@ -33,7 +33,7 @@ int compare_doubles(const void *a, const void *b) {
 }
 
 void *aalloc(size_t size) {
-	const size_t alignment = 128;
+	const size_t alignment = 64;
 	if (size % alignment != 0) {
 		size = (size + alignment - 1) & ~(alignment - 1);
 	}

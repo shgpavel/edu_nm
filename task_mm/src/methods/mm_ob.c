@@ -48,9 +48,9 @@ void matrix_mult_naive(matrix *a, matrix *b, matrix *c) {
 
 void matrix_mult_fast(matrix *a, matrix *b, matrix *c) {
 #ifdef __AVX512CD__
-	size_t const block = 4;
-#else
 	size_t const block = 8;
+#else
+	size_t const block = 4;
 #endif
 
 	size_t const binr = a->rows / block;
@@ -84,9 +84,9 @@ void matrix_mult_fast(matrix *a, matrix *b, matrix *c) {
 					}
 
 #ifdef __AVX512CD__
-					__m512d left_row = _mm512_loadu_pd(
+					__m512d left_row = _mm512_load_pd(
 					    &a->data->data[left_index]);
-					__m512d right_row = _mm512_loadu_pd(
+					__m512d right_row = _mm512_load_pd(
 					    &b->data->data[right_index]);
 
 					__m512d mult =
