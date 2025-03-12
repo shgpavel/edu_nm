@@ -1,11 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include "vector.h"
+
 #include <jemalloc/jemalloc.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <vector.h>
 
 void vector_create(vector *v, size_t capacity, allocator a) {
 	v->data = (double *)a(capacity * sizeof(double));

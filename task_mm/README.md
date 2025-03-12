@@ -23,4 +23,5 @@
 	make
 	
 ## Start
-	./build/main
+	taskset -c 0 ./build/main
+	python graph.py

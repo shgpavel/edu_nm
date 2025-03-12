@@ -3,9 +3,13 @@
 /* Matrix multiplication implementation */
 
 #include <immintrin.h>
-#include <matrix.h>
 #include <openblas/cblas.h>
-#include <vector_avx.h>
+#include <pthread.h>
+#include <unistd.h>
+
+#include "matrix.h"
+#include "mm_ob.h"
+#include "vector_avx.h"
 
 void matrix_mult_openblas(matrix *a, matrix *b, matrix *c) {
 	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->rows, a->rows,
@@ -39,25 +43,28 @@ void matrix_mult_naive(matrix *a, matrix *b, matrix *c) {
  *
  * TODO
  * any matrix
- * 1103 4x4 8x8
  *
  */
 
 void matrix_mult_fast(matrix *a, matrix *b, matrix *c) {
-	if (a->cols != b->rows || a->rows != b->cols || c->rows != a->rows ||
-	    c->cols != b->cols || a->rows % 4 != 0 || a->cols % 4 != 0) {
-		return;
-	}
+#ifdef __AVX512CD__
+	size_t const block = 4;
+#else
+	size_t const block = 8;
+#endif
 
-	const size_t block = 4;
-	const size_t binr = a->rows / block;
-
-	const size_t bblock = block * block;
-	const size_t rowsft = binr * block;
+	size_t const binr = a->rows / block;
+	size_t const bblock = block * block;
+	size_t const rowsft = binr * block;
 	/* extra row shift */
 	size_t inksft = 0;
 
-	for (size_t k = 0; k < block; ++k) {
+	if (a->cols != b->rows || a->rows != b->cols || c->rows != a->rows ||
+	    c->cols != b->cols || a->rows % block != 0 || a->cols % block != 0) {
+		return;
+	}
+
+	for (size_t k = 0; k < binr * binr; ++k) {
 		if (k % binr == 0 && k != 0) {
 			inksft += block * (block - 1) * binr;
 		}
@@ -76,26 +83,31 @@ void matrix_mult_fast(matrix *a, matrix *b, matrix *c) {
 						right_index += bblock * binr;
 					}
 
+#ifdef __AVX512CD__
+					__m512d left_row = _mm512_loadu_pd(
+					    &a->data->data[left_index]);
+					__m512d right_row = _mm512_loadu_pd(
+					    &b->data->data[right_index]);
+
+					__m512d mult =
+					    _mm512_mul_pd(left_row, right_row);
+
+					matrix_direct(c, i * c->cols + j +
+												k * block +
+												inksft) += avxreg_sum512(mult);
+#else
 					__m256d left_row = _mm256_load_pd(
 					    &a->data->data[left_index]);
 					__m256d right_row = _mm256_load_pd(
 					    &b->data->data[right_index]);
 
-					// avxreg_print(left_row);
-					// avxreg_print(right_row);
-					// printf("i=%zu j=%zu h=%zu k=%zu li
-					// %zu rj %zu\n\n", i, j, h, k,
-					//			 left_index,
-					//right_index);
 					__m256d mult =
 					    _mm256_mul_pd(left_row, right_row);
 
-					/* i * cols + j + block_size * k */
 					matrix_direct(
 					    c, i * c->cols + j + k * block +
 					           inksft) += avxreg_sum(mult);
-					// printf("%zu %zu\n", i * c->cols + j +
-					// k * block + inksft, inksft);
+#endif
 				}
 			}
 		}

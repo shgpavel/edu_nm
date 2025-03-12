@@ -26,6 +26,5 @@ void   matrix_destroy_impl(size_t, ...);
 void   matrix_print(matrix *);
 
 void   matrix_transpose(matrix *, matrix *);
-int    matrix_equal(matrix *, matrix *);
 
 #endif

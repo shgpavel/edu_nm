@@ -1,11 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include "matrix.h"
+
 #include <jemalloc/jemalloc.h>
 #include <math.h>
-#include <matrix.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <vector.h>
+
+#include "vector.h"
 
 void matrix_create(matrix *m, size_t rows, size_t cols, allocator a) {
 	m->rows = rows;
@@ -69,25 +71,4 @@ void matrix_transpose(matrix *dest, matrix *src) {
 			matrix_val(dest, i, j) = matrix_val(src, j, i);
 		}
 	}
-}
-
-int matrix_equal(matrix *a, matrix *b) {
-	if (a->rows != b->rows || a->cols != b->cols) {
-		return -1;
-	}
-
-	int rly = 1;
-	for (size_t i = 0; i < a->rows; ++i) {
-		for (size_t j = 0; j < a->cols; ++j) {
-			if (fabs(matrix_val(a, i, j) - matrix_val(b, i, j)) >
-			    1e-3) {
-				rly = -1;
-			}
-		}
-	}
-
-	if (rly > 0) {
-		return 1;
-	}
-	return -1;
 }
