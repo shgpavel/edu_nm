@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <jemalloc/jemalloc.h>
+#include <math.h>
 #include <matrix.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,6 @@
 
 #include "mm_ob.h"
 #include "vector.h"
-#include "vector_avx.h"
 
 int generate_test(matrix *a, matrix *b, size_t n) {
 	for (size_t i = 0; i < n; ++i) {
@@ -50,25 +50,18 @@ struct stats {
 };
 
 struct stats bench(matrix_mult_func multer, size_t n, size_t tests) {
-	matrix a, b, c, btr;
-	matrix_ccreate(&a, n, n, aalloc);
-	matrix_ccreate(&b, n, n, aalloc);
-	matrix_ccreate(&c, n, n, aalloc);
-	matrix_ccreate(&btr, n, n, aalloc);
+	matrix a, b, c;
+	matrix_ccreate(n, n, aalloc, &a, &b, &c);
 
 	generate_test(&a, &b, n);
-	matrix_transpose(&btr, &b);
 
 	vector times;
 	vector_ccreate(&times, tests, aalloc);
 
 	for (size_t i = 0; i < tests; ++i) {
 		clock_t start = clock();
-		if (multer == matrix_mult_fast) {
-			multer(&a, &btr, &c);
-		} else {
-			multer(&a, &b, &c);
-		}
+		multer(&a, &b, &c);
+
 		clock_t end = clock();
 		double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
 		times.data[i] = time_spent;
@@ -91,39 +84,79 @@ struct stats bench(matrix_mult_func multer, size_t n, size_t tests) {
 		--p95idx;
 	}
 
-	struct stats res = {avg, times.data[p95idx], low1p};
-	matrix_destroy(&a, &b, &c, &btr);
-	vector_destroy(&times);
-	return res;
+#ifdef DEBUG
+	matrix c2, re;
+	matrix_ccreate(n, n, aalloc, &c2, &re);
+	matrix_mult_mkl(&a, &b, &c2);
+
+	for (size_t i = 0; i < n; ++i) {
+		for (size_t j = 0; j < n; ++j) {
+			double r = fabs(
+			    (matrix_val(&c, i, j) - matrix_val(&c2, i, j)));
+			matrix_val(&re, i, j) = r;
+		}
+	}
+	matrix_print(&re);
+	printf("\n");
+	matrix_destroy(&c2, &re);
+}
+#endif
+
+struct stats res = {avg, times.data[p95idx], low1p};
+matrix_destroy(&a, &b, &c);
+vector_destroy(&times);
+return res;
 }
 
 int main() {
 	srand(time(NULL));
 
-	/*
 	FILE *csvout = fopen(outfp, "w");
 	if (!csvout) {
 		return -1;
 	}
 
 	int err = 0;
-	err = fprintf(
-	    csvout,
-	    "n,Oavg,O95p,O1p,Navg,N95p,N1p,Ravg,R95p,R1p\n");
+	err = fprintf(csvout,
+	              "n,mklavg,mkl95p,mkl1p,"
+	              "naiveavg,naive95p,naive1p,"
+	              "resavg,res95p,res1p\n");
 	if (err < 0) {
 		return -1;
 	}
 
-	for (size_t n = 32; n < 1024; n += 32) {
-		struct stats resO = bench(matrix_mult_openblas, n, 10);
-		struct stats resN = bench(matrix_mult_naive, n, 10);
-		struct stats resR = bench(matrix_mult_fast, n, 10);
+	size_t const nmin = 32, nmax = 2048;
+	size_t acnum[18] = {20, 15, 10, 9, 8, 7, 6, 5, 4,
+	                    3,  2,  1,  1, 1, 1, 1, 1, 1};
+
+	for (size_t n = nmin; n < nmax; n += nmin) {
+		double izedn =
+		    ((double)n - (double)nmin) / ((double)nmax - (double)nmin);
+		size_t kidx = (size_t)round((double)izedn * (18.0 - 1.0));
+		size_t ktests = acnum[kidx];
+
+		printf("%zu %zu %.3f%%\n", n, ktests, izedn * 100);
+		if (n > 1000) {
+			n += 2 * nmin;
+		}
+
+		if (n > 2000) {
+			n += 2 * nmin;
+		}
+
+		if (n > 3000) {
+			n += 2 * nmin;
+		}
+
+		struct stats resMKL = bench(matrix_mult_mkl, n, ktests);
+		struct stats resN = bench(matrix_mult_naive, n, ktests);
+		struct stats resR = bench(matrix_mult_fast, n, ktests);
 
 		fprintf(csvout,
 		        "%zu,%lg,%lg,%lg,%lg,%lg,%lg,%lg"
 		        ",%lg,%lg\n",
-		        n, resO.avg, resO.p95, resO.p1, resN.avg, resN.p95,
-		        resN.p1, resR.avg, resR.p95, resR.p1);
+		        n, resMKL.avg, resMKL.p95, resMKL.p1, resN.avg,
+		        resN.p95, resN.p1, resR.avg, resR.p95, resR.p1);
 	}
 
 	err = fclose(csvout);
@@ -132,29 +165,28 @@ int main() {
 	}
 
 	return 0;
-	*/
+
+	/*
+	// second main to test from stdin
 
 	size_t n;
 	scanf("%zu", &n);
-	
-	matrix a, b, c, btr, c2;
-	matrix_ccreate(&a, n, n, aalloc);
-	matrix_ccreate(&b, n, n, aalloc);
-	matrix_ccreate(&c, n, n, aalloc);
-	matrix_ccreate(&c2, n, n, aalloc);
 
-	matrix_ccreate(&btr, n, n, aalloc);
+	matrix a, b, c, btr, c2;
+	matrix_ccreate(n, n, aalloc,
+	                                                         &a, &b, &c,
+	&btr, &c2);
 
 	for (size_t i = 0; i < a.rows; ++i) {
-		for (size_t j = 0; j < a.cols; ++j) {
-			scanf("%lf", &matrix_val(&a, i, j));
-		}
+	        for (size_t j = 0; j < a.cols; ++j) {
+	                scanf("%lf", &matrix_val(&a, i, j));
+	        }
 	}
 
 	for (size_t i = 0; i < b.rows; ++i) {
-		for (size_t j = 0; j < b.cols; ++j) {
-			scanf("%lf", &matrix_val(&b, i, j));
-		}
+	        for (size_t j = 0; j < b.cols; ++j) {
+	                scanf("%lf", &matrix_val(&b, i, j));
+	        }
 	}
 
 	matrix_print(&a);
@@ -166,10 +198,24 @@ int main() {
 
 	matrix_mult_fast(&a, &btr, &c);
 	matrix_print(&c);
-
 	printf("\n");
-	matrix_mult_openblas(&a, &b, &c2);
+
+	matrix_mult_mkl(&a, &btr, &c2);
 	matrix_print(&c2);
+	printf("\n");
+
+	for (size_t i = 0; i < n; ++i) {
+	        for (size_t j = 0; j < n; ++j) {
+	                int k = (matrix_val(&c, i, j) == matrix_val(&c2, i, j));
+	                if (j != n - 1)
+	                        printf("%d ", k);
+	                else
+	                        printf("%d", k);
+	        }
+	        printf("\n");
+	}
+	printf("\n");
 
 	matrix_destroy(&a, &b, &c, &btr, &c2);
+	*/
 }

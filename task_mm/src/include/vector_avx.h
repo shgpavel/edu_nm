@@ -20,7 +20,6 @@ inline double avxreg_sum(__m256d r) {
 
 inline double avxreg_sum512(__m512d r) {
 	return _mm512_reduce_add_pd(r);	
-} 
-
+}
 
 #endif

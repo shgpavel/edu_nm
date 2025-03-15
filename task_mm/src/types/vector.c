@@ -3,7 +3,6 @@
 #include "vector.h"
 
 #include <jemalloc/jemalloc.h>
-#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
