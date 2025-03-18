@@ -161,7 +161,7 @@ def main():
     y0 = np.array([B * np.pi, A * np.pi], dtype=np.float64)
     t0 = 0.0
     t_end = np.pi
-    h = 0.001
+    h = 1e-4
     
     actsol = analytical_solution(np.pi) 
     print(f"{"an sol":<10} y1(pi) = {actsol[0]:.6f} y2(pi) = {actsol[1]:.6f}")
@@ -169,16 +169,18 @@ def main():
                rk2_tol, rk4_tol, y0=y0, t0=t0, t_end=t_end, h=h, actsol=actsol)
     print("\n", end="")
  
-    '''
-    print_perf(rk2, rk2_cpu, rk2wc_cpu, rk4, rk4_cpu, rk4wc_cpu,
+
+    # rk2_cpu, rk4_cpu,
+    print_perf(rk2, rk2wc_cpu, rk4, rk4wc_cpu,
                rk2_tol, rk4_tol, y0=y0, t0=t0, t_end=t_end, h=h)
-    print("\n", end="")    
+    print("\n", end="")
+    
     '''
     graph_ftol(y0, t0, t_end)
     graph_ht(y0, t0, t_end)
     
     graph_loc(y0, t0, t_end)
     graph_cnt(y0, t0, t_end)
-
+    '''
 if __name__ == "__main__":
     main()

@@ -24,19 +24,19 @@ if pycuda_avail:
 
 def rk2(y0, t0, t_end, h):
     if len(y0) % 2 != 0:
-        raise ValueError("try something else")
+        raise ValueError("This function only doing systems of 2")
 
     a21 = XI
     b2 = 1 / (2 * XI)
     b1 = 1 - b2
     
-    y0 = np.array(y0, dtype=np.float64)
+    y0 = np.array(y0, dtype=np.float32)
     N = len(y0) // 2
 
     num_steps = int(np.ceil((t_end - t0) / h)) + 1
-    t_values = np.linspace(t0, t_end, num_steps, dtype=np.float64)
+    t_values = np.linspace(t0, t_end, num_steps, dtype=np.float32)
     
-    y_values_host = np.zeros((num_steps, 2 * N), dtype=np.float64)
+    y_values_host = np.zeros((num_steps, 2 * N), dtype=np.float32)
     y_values_host[0, :] = y0
 
     y_initial_gpu = drv.mem_alloc(y0.nbytes)
@@ -44,16 +44,16 @@ def rk2(y0, t0, t_end, h):
 
     y_values_gpu = drv.mem_alloc(y_values_host.nbytes)
     
-    threads_per_block = 64
+    threads_per_block = 2
     blocks = (N + threads_per_block - 1) // threads_per_block
     
     rk2_cuda(
-        np.float64(h),
-        np.float64(A),
-        np.float64(B),
-        np.float64(a21),
-        np.float64(b1),
-        np.float64(b2),
+        np.float32(h),
+        np.float32(A),
+        np.float32(B),
+        np.float32(a21),
+        np.float32(b1),
+        np.float32(b2),
         np.int32(num_steps),
         y_initial_gpu,
         y_values_gpu,
