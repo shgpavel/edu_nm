@@ -8,7 +8,7 @@ LDFLAGS += -lmkl_core -ldl -lmkl_intel_lp64 -lmkl_sequential
 # single thread is unlikely a bottleneck
 ifdef MKLMT
 	LDFLAGS += -lmkl_intel_thread  -lmkl_core -liomp5 \
-							-lpthread -ldl -lmkl_intel_lp64
+	-lpthread -ldl -lmkl_intel_lp64
 endif
 
 CC = clang
@@ -56,7 +56,7 @@ $(DEPS): $(OUT_O_DIR)/%.d: %.c Makefile
 clean: clean-all
 
 clean-all: clean-build
-	rm -f $(PGO_RAW) $(PGO_DATA) out.csv
+	rm -f $(PGO_RAW) $(PGO_DATA)
 
 clean-build:
 	rm -rf $(OBJS) $(DEPS) $(OUT_O_DIR)

@@ -5,8 +5,13 @@
 
 #include "matrix.h"
 
-void matrix_mult_mkl(matrix *, matrix *, matrix *);
-void matrix_mult_naive(matrix *, matrix *, matrix *);
-void matrix_mult_fast(matrix *, matrix *, matrix *);
+void matrix_mult_mkl(matrix const* restrict, matrix const* restrict,
+                     matrix const* restrict);
+
+void matrix_mult_naive(matrix const* restrict, matrix const* restrict,
+                       matrix const* restrict);
+
+void matrix_mult_fast(matrix const* restrict, matrix const* restrict,
+                      matrix const* restrict);
 
 #endif

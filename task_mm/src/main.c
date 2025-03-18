@@ -5,6 +5,7 @@
 #include <matrix.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "mm_ob.h"
@@ -40,8 +41,8 @@ void *aalloc(size_t size) {
 	return aligned_alloc(alignment, size);
 }
 
-const char outfp[] = "out.csv";
-typedef void (*matrix_mult_func)(matrix *, matrix *, matrix *);
+typedef void (*matrix_mult_func)(matrix const *restrict, matrix const *restrict,
+                                 matrix const *restrict);
 
 struct stats {
 	double avg;
@@ -91,27 +92,46 @@ struct stats bench(matrix_mult_func multer, size_t n, size_t tests) {
 
 	for (size_t i = 0; i < n; ++i) {
 		for (size_t j = 0; j < n; ++j) {
-			double r = fabs(
-			    (matrix_val(&c, i, j) - matrix_val(&c2, i, j)));
+			double r =
+			    fabs((matrix_val(&c, i, j) - matrix_val(&c2, i, j)));
 			matrix_val(&re, i, j) = r;
 		}
 	}
 	matrix_print(&re);
 	printf("\n");
 	matrix_destroy(&c2, &re);
-}
 #endif
 
-struct stats res = {avg, times.data[p95idx], low1p};
-matrix_destroy(&a, &b, &c);
-vector_destroy(&times);
-return res;
+	struct stats res = {avg, times.data[p95idx], low1p};
+	matrix_destroy(&a, &b, &c);
+	vector_destroy(&times);
+	return res;
+}
+
+void gen_name(char *buf, size_t size) {
+	char const charset[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+	for (size_t i = 0; i < size - 1; i++) {
+		buf[i] = charset[rand() % (sizeof(charset) - 1)];
+	}
+	buf[size - 1] = '\0';
 }
 
 int main() {
 	srand(time(NULL));
 
-	FILE *csvout = fopen(outfp, "w");
+	char test1[10];
+	gen_name(test1, 5);
+	char test0[5] = ".csv";
+	strcat(test1, test0);
+
+	char test2[15] = "test-";
+	strcat(test2, test1);
+	char test3[25] = "results/";
+	strcat(test3, test2);
+
+	printf(";;\n  results in %s\n;;\n", test3);
+
+	FILE *csvout = fopen(test3, "w");
 	if (!csvout) {
 		return -1;
 	}
@@ -119,15 +139,14 @@ int main() {
 	int err = 0;
 	err = fprintf(csvout,
 	              "n,mklavg,mkl95p,mkl1p,"
-	              "naiveavg,naive95p,naive1p,"
+	              //"naiveavg,naive95p,naive1p,"
 	              "resavg,res95p,res1p\n");
 	if (err < 0) {
 		return -1;
 	}
 
 	size_t const nmin = 32, nmax = 2048;
-	size_t acnum[18] = {20, 15, 10, 9, 8, 7, 6, 5, 4,
-	                    3,  2,  1,  1, 1, 1, 1, 1, 1};
+	size_t acnum[18] = {20, 15, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1};
 
 	for (size_t n = nmin; n < nmax; n += nmin) {
 		double izedn =
@@ -149,14 +168,16 @@ int main() {
 		}
 
 		struct stats resMKL = bench(matrix_mult_mkl, n, ktests);
-		struct stats resN = bench(matrix_mult_naive, n, ktests);
+		// struct stats resN = bench(matrix_mult_naive, n, ktests);
 		struct stats resR = bench(matrix_mult_fast, n, ktests);
 
 		fprintf(csvout,
-		        "%zu,%lg,%lg,%lg,%lg,%lg,%lg,%lg"
-		        ",%lg,%lg\n",
-		        n, resMKL.avg, resMKL.p95, resMKL.p1, resN.avg,
-		        resN.p95, resN.p1, resR.avg, resR.p95, resR.p1);
+		        "%zu,%lg,%lg,%lg,"
+		        //"%lg,%lg,%lg,"
+		        "%lg,%lg,%lg\n",
+		        n, resMKL.avg, resMKL.p95, resMKL.p1,
+		        // resN.avg, resN.p95, resN.p1,
+		        resR.avg, resR.p95, resR.p1);
 	}
 
 	err = fclose(csvout);
@@ -175,7 +196,7 @@ int main() {
 	matrix a, b, c, btr, c2;
 	matrix_ccreate(n, n, aalloc,
 	                                                         &a, &b, &c,
-	&btr, &c2);
+	                                                         &btr, &c2);
 
 	for (size_t i = 0; i < a.rows; ++i) {
 	        for (size_t j = 0; j < a.cols; ++j) {
