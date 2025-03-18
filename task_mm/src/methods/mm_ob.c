@@ -18,9 +18,8 @@
 
 void matrix_mult_mkl(matrix const* restrict a, matrix const* restrict b,
                      matrix const* restrict c) {
-	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, a->rows, a->rows,
-	            a->rows, 1, a->data->data, a->rows, b->data->data, a->rows, 0,
-	            c->data->data, a->rows);
+	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, a->rows, a->rows, a->rows, 1,
+	            a->data->data, a->rows, b->data->data, a->rows, 0, c->data->data, a->rows);
 }
 
 void matrix_mult_naive(matrix const* restrict a, matrix const* restrict b,
@@ -80,59 +79,54 @@ void matrix_mult_fast(matrix const* restrict a, matrix const* restrict b,
 				size_t ri_base = h * block + risft;
 
 #ifdef __AVX512CD__
-				__m512d cp = _mm512_load_pd(
-				    &c->data->data[i * c->cols + k * block + csft]);
+				__m512d cp =
+				    _mm512_load_pd(&c->data->data[i * c->cols + k * block + csft]);
 
-				__m512d left_row =
-				    _mm512_load_pd(&a->data->data[left_index]);
+				__m512d left_row = _mm512_load_pd(&a->data->data[left_index]);
 
-				__m512d right_row_0 =
-				    _mm512_load_pd(&b->data->data[ri_base]);
+				__m512d right_row_0 = _mm512_load_pd(&b->data->data[ri_base]);
 				__m512d right_row_1 =
 				    _mm512_load_pd(&b->data->data[rowsft + ri_base]);
-				__m512d right_row_2 = _mm512_load_pd(
-				    &b->data->data[rowsft * 2 + ri_base]);
-				__m512d right_row_3 = _mm512_load_pd(
-				    &b->data->data[rowsft * 3 + ri_base]);
-				__m512d right_row_4 = _mm512_load_pd(
-				    &b->data->data[rowsft * 4 + ri_base]);
-				__m512d right_row_5 = _mm512_load_pd(
-				    &b->data->data[rowsft * 5 + ri_base]);
-				__m512d right_row_6 = _mm512_load_pd(
-				    &b->data->data[rowsft * 6 + ri_base]);
-				__m512d right_row_7 = _mm512_load_pd(
-				    &b->data->data[rowsft * 7 + ri_base]);
+				__m512d right_row_2 =
+				    _mm512_load_pd(&b->data->data[rowsft * 2 + ri_base]);
+				__m512d right_row_3 =
+				    _mm512_load_pd(&b->data->data[rowsft * 3 + ri_base]);
+				__m512d right_row_4 =
+				    _mm512_load_pd(&b->data->data[rowsft * 4 + ri_base]);
+				__m512d right_row_5 =
+				    _mm512_load_pd(&b->data->data[rowsft * 5 + ri_base]);
+				__m512d right_row_6 =
+				    _mm512_load_pd(&b->data->data[rowsft * 6 + ri_base]);
+				__m512d right_row_7 =
+				    _mm512_load_pd(&b->data->data[rowsft * 7 + ri_base]);
 
 				__m512d add = _mm512_set_pd(
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_7)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_6)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_5)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_4)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_3)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_2)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_1)),
-				    avxreg_sum(_mm512_mul_pd(left_row, right_row_0)));
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_7)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_6)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_5)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_4)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_3)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_2)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_1)),
+				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_0)));
 				__m512 res = _mm512_add_pd(add, cp);
-				_mm512_store_pd(
-				    &c->data->data[i * c->cols + k * block + csft],
-				    res);
+				_mm512_store_pd(&c->data->data[i * c->cols + k * block + csft],
+				                res);
 
 #elifdef __AVX2__
 
-				__m256d cp = _mm256_load_pd(
-				    &c->data->data[i * c->cols + k * block + csft]);
+				__m256d cp =
+				    _mm256_load_pd(&c->data->data[i * c->cols + k * block + csft]);
 
-				__m256d left_row =
-				    _mm256_load_pd(&a->data->data[left_index]);
+				__m256d left_row = _mm256_load_pd(&a->data->data[left_index]);
 
-				__m256d right_row_0 =
-				    _mm256_load_pd(&b->data->data[ri_base]);
+				__m256d right_row_0 = _mm256_load_pd(&b->data->data[ri_base]);
 				__m256d right_row_1 =
 				    _mm256_load_pd(&b->data->data[rowsft + ri_base]);
-				__m256d right_row_2 = _mm256_load_pd(
-				    &b->data->data[2 * rowsft + ri_base]);
-				__m256d right_row_3 = _mm256_load_pd(
-				    &b->data->data[3 * rowsft + ri_base]);
+				__m256d right_row_2 =
+				    _mm256_load_pd(&b->data->data[2 * rowsft + ri_base]);
+				__m256d right_row_3 =
+				    _mm256_load_pd(&b->data->data[3 * rowsft + ri_base]);
 
 				__m256d add = _mm256_set_pd(
 				    avxreg_sum(_mm256_mul_pd(left_row, right_row_3)),
@@ -140,9 +134,8 @@ void matrix_mult_fast(matrix const* restrict a, matrix const* restrict b,
 				    avxreg_sum(_mm256_mul_pd(left_row, right_row_1)),
 				    avxreg_sum(_mm256_mul_pd(left_row, right_row_0)));
 				__m256 res = _mm256_add_pd(add, cp);
-				_mm256_store_pd(
-				    &c->data->data[i * c->cols + k * block + csft],
-				    res);
+				_mm256_store_pd(&c->data->data[i * c->cols + k * block + csft],
+				                res);
 #endif
 			}
 		}
