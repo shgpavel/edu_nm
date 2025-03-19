@@ -8,10 +8,7 @@
 ## Future plans
 	1. FMA
 	2. any matrix
-	3. vtune
-	4. better testing (graphics and random matrix generation)
 	5. O(n^e) algo AlphaZero
-	6. cblas interface
 
 ## Contains
 	src/types/vector.c      -- updated vector lib

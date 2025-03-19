@@ -11,6 +11,7 @@
 #include <mkl.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "matrix.h"
@@ -43,9 +44,6 @@ void matrix_mult_naive(matrix const* restrict a, matrix const* restrict b,
  * size_rows(a) = size_rows(b) = size_rows(c),
  * size_cols(a) = size_cols(b) = size_cols(c)
  * and multiple of 4 or 8
- *
- * TODO
- * any matrix, better cache util
  */
 
 void matrix_mult_fast(matrix const* restrict a, matrix const* restrict b,
@@ -56,6 +54,8 @@ void matrix_mult_fast(matrix const* restrict a, matrix const* restrict b,
 	size_t const block = 4;
 #endif
 
+	memset(c->data->data, 0, c->data->size);
+	
 	size_t const blinrow = a->rows / block;
 	size_t const blocksq = block * block;
 	size_t const rowsft = blinrow * block;
@@ -109,9 +109,8 @@ void matrix_mult_fast(matrix const* restrict a, matrix const* restrict b,
 				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_2)),
 				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_1)),
 				    avxreg_sum512(_mm512_mul_pd(left_row, right_row_0)));
-				__m512 res = _mm512_add_pd(add, cp);
-				_mm512_store_pd(&c->data->data[i * c->cols + k * block + csft],
-				                res);
+				__m512d res = _mm512_add_pd(add, cp);
+				_mm512_store_pd(&c->data->data[i * c->cols + k * block + csft], res);
 
 #elifdef __AVX2__
 
@@ -133,7 +132,7 @@ void matrix_mult_fast(matrix const* restrict a, matrix const* restrict b,
 				    avxreg_sum(_mm256_mul_pd(left_row, right_row_2)),
 				    avxreg_sum(_mm256_mul_pd(left_row, right_row_1)),
 				    avxreg_sum(_mm256_mul_pd(left_row, right_row_0)));
-				__m256 res = _mm256_add_pd(add, cp);
+				__m256d res = _mm256_add_pd(add, cp);
 				_mm256_store_pd(&c->data->data[i * c->cols + k * block + csft],
 				                res);
 #endif
