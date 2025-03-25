@@ -1,20 +1,15 @@
 ## Overview
-	Research task on matrix multiplication
-	comparing against MKL
+	Research task on vectorized matrix
+	multiplication, comparing against MKL
 
 ## Status
 	WIP
-
-## Future plans
-	1. FMA
-	2. any matrix
-	5. O(n^e) algo AlphaZero
 
 ## Contains
 	src/types/vector.c      -- updated vector lib
 	src/types/matrix.c      -- updated matrix lib
 	src/types/vector_avx.c  -- some extensions for vector
-	src/methods/mm_ob.c     -- actual matrix multiplication
+	src/methods/mult.c      -- actual matrix multiplication
 	src/main.c              -- build matrix & test them
 
 ## Dependencies
@@ -25,9 +20,9 @@
 	some libc libm
 
 ## Build
-	make
-	
-## Start
 	source /opt/intel/oneapi/setvars.sh
+	make
+
+## Start
 	./build/main
 	python graph.py

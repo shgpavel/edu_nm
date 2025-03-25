@@ -5,15 +5,9 @@
 #include <jemalloc/jemalloc.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "vector.h"
-
-void matrix_create(matrix *m, size_t rows, size_t cols, allocator a) {
-	m->rows = rows;
-	m->cols = cols;
-	m->data = (vector *)a(sizeof(vector));
-	vector_create(m->data, m->rows * m->cols, a);
-}
 
 void matrix_ccreate_impl(size_t rows, size_t cols, allocator alloc,
                          size_t count, ...) {
@@ -25,23 +19,10 @@ void matrix_ccreate_impl(size_t rows, size_t cols, allocator alloc,
 		m->rows = rows;
 		m->cols = cols;
 
-		m->data = (vector *)alloc(sizeof(vector));
-		vector_ccreate(m->data, m->rows * m->cols, alloc);
+		m->data = (double *)alloc(rows * cols * sizeof(double));
+		memset(m->data, 0, cols * rows * sizeof(double));
 	}
 	va_end(args);
-}
-
-void matrix_create_copy(matrix *dest, matrix *src, allocator a) {
-	if (src != NULL) {
-		dest->rows = src->rows;
-		dest->cols = src->cols;
-		dest->data = (vector *)malloc(sizeof(vector));
-		vector_create_copy(dest->data, src->data, a);
-	}
-}
-
-void matrix_push(matrix *m, double adat, reallocator rea) {
-	vector_push(m->data, adat, rea);
 }
 
 void matrix_destroy_impl(size_t count, ...) {
@@ -53,7 +34,6 @@ void matrix_destroy_impl(size_t count, ...) {
 		m->rows = 0;
 		m->cols = 0;
 
-		vector_destroy(m->data);
 		free(m->data);
 		m->data = NULL;
 	}

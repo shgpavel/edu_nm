@@ -12,4 +12,6 @@ task_8/src/methods/__pycache__
 task_8/src/aux/__pycache__
 
 task_mm/src/.clangd
+task_mm/src/results/cache
+
 task_opt/src/.clangd

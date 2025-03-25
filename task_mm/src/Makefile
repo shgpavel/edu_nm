@@ -1,14 +1,8 @@
 CFLAGS  := -Wall -Wextra -O3 -std=c23 -march=native $(CFLAGS)
 LDFLAGS := -lc -lm -flto -fuse-ld=mold $(LDFLAGS)
 
-# -fsanitize=address -fsanitize=undefined
-
-LDFLAGS += -lmkl_core -ldl -lmkl_intel_lp64 -lmkl_sequential
-
-# single thread is unlikely a bottleneck
-ifdef MKLMT
-	LDFLAGS += -lmkl_core -ldl -lmkl_intel_lp64 -ltbb -lmkl_tbb_thread -lpthread 
-endif
+LDFLAGS += -lmkl_core -ldl -lmkl_intel_lp64 -ltbb \
+	-lmkl_tbb_thread -lpthread
 
 CC = clang
 LD = clang
@@ -24,6 +18,11 @@ DEPS      := $(OBJS:.o=.d)
 
 ifdef DEBUG
 	CFLAGS += -DDEBUG -O1 -g
+endif
+
+ifdef SANITIZE
+	CFLAGS  += -fsanitize=address -fsanitize=undefined
+	LDFLAGS += -fsanitize=address -fsanitize=undefined
 endif
 
 ifdef PGO_GEN
