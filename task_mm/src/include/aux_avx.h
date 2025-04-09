@@ -1,15 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef VECTOR_AVX_H
-#define VECTOR_AVX_H
+#ifndef AUX_AVX_H
+#define AUX_AVX_H
 
 #include <immintrin.h>
 
-#include "vector.h"
-
 void avxreg_print(__m256d);
-double vector_scalar_prod_avx(vector *, vector *);
-double vector_norm2_avx(vector *, size_t);
 
 inline double avxreg_sum(__m256d r) {
 	__m128d low = _mm256_castpd256_pd128(r);

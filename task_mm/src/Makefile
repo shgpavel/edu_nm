@@ -1,5 +1,5 @@
 CFLAGS  := -Wall -Wextra -O3 -std=c23 -march=native $(CFLAGS)
-LDFLAGS := -lc -lm -flto -fuse-ld=mold $(LDFLAGS)
+LDFLAGS := -lc -lm -flto -fuse-ld=lld $(LDFLAGS)
 
 LDFLAGS += -lmkl_core -ldl -lmkl_intel_lp64 -ltbb \
 	-lmkl_tbb_thread -lpthread

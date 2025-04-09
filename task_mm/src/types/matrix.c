@@ -7,10 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "vector.h"
-
 void matrix_ccreate_impl(size_t rows, size_t cols, allocator alloc,
-                         size_t count, ...) {
+												 reallocator realloc, size_t count, ...) {
 	va_list args;
 	va_start(args, count);
 
@@ -18,6 +16,9 @@ void matrix_ccreate_impl(size_t rows, size_t cols, allocator alloc,
 		matrix *m = va_arg(args, matrix *);
 		m->rows = rows;
 		m->cols = cols;
+
+		m->alloc = alloc;
+		m->realloc = realloc;
 
 		m->data = (double *)alloc(rows * cols * sizeof(double));
 		memset(m->data, 0, cols * rows * sizeof(double));
@@ -70,4 +71,16 @@ void matrix_transpose(matrix *dest, matrix *src) {
 			matrix_val(dest, i, j) = matrix_val(src, j, i);
 		}
 	}
+}
+
+void matrix_resize_specc(matrix *m, size_t cols) {
+	m->data = m->realloc(m->data, m->rows * cols);
+	//memset();
+	m->cols = cols;
+}
+
+void matrix_resize_specr(matrix *m, size_t rows) {
+	m->data = m->realloc(m->data, rows * m->cols);
+	//memset();
+	m->rows = rows;
 }

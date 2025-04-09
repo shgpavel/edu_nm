@@ -10,19 +10,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <xmmintrin.h>
 
 #include "matrix.h"
-#include "vector_avx.h"
+#include "aux_avx.h"
 
 // B is transposed for all funcs
 
-void matrix_mult_mkl(matrix const* a, matrix const* b, matrix const* c) {
+void matrix_mult_mkl(matrix *a, matrix *b, matrix *c) {
 	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, a->rows, a->rows,
 	            a->rows, 1, a->data, a->rows, b->data, a->rows, 0, c->data,
 	            a->rows);
 }
 
-void matrix_mult_naive(matrix const* a, matrix const* b, matrix const* c) {
+void matrix_mult_naive(matrix *a, matrix *b, matrix *c) {
 	if (a->cols != b->rows || c->rows != a->rows || c->cols != b->cols) {
 		return;
 	}
@@ -38,18 +39,32 @@ void matrix_mult_naive(matrix const* a, matrix const* b, matrix const* c) {
 	}
 }
 
-/*
- * size_rows(a) = size_rows(b) = size_rows(c),
- * size_cols(a) = size_cols(b) = size_cols(c)
- * and multiple of 4 or 8
- */
-
-void matrix_mult_fast(matrix const* a, matrix const* b, matrix const* c) {
+void matrix_mult_fast(matrix *a, matrix *b, matrix *c) {
 	size_t const block = 4;
 
+	if (a->cols != b->rows || c->rows != a->rows || c->cols != b->cols) {
+		return;
+	}
+	
+	if (a->cols % 4 != 0) {
+		matrix_resize_specc(a, a->cols / 4 + 1 * 4);
+	}
+	
+	if (a->rows % 4 != 0) {
+		matrix_resize_specr(a, a->rows / 4 + 1 * 4);
+	}
+
+	if (b->cols % 4 != 0) {
+		matrix_resize_specc(b, b->cols / 4 + 1 * 4);
+	}
+
+	if (b->rows % 4 != 0) {
+		matrix_resize_specr(b, b->rows / 4 + 1 * 4);
+	}
+	
 	// beta = 0
 	memset(c->data, 0, c->rows * c->cols * sizeof(double));
-
+	
 	size_t const blinrow = a->rows / block;
 	size_t const blocksq = block * block;
 	size_t const rowsft = blinrow * block;
@@ -67,11 +82,20 @@ void matrix_mult_fast(matrix const* a, matrix const* b, matrix const* c) {
 			risft += blocksq * blinrow;
 		}
 
+		_mm_prefetch(&c->data[k * block + csft], _MM_HINT_T0);
+		_mm_prefetch(&a->data[lftsft], _MM_HINT_T0);
+		_mm_prefetch(&b->data[risft], _MM_HINT_T0);
+		
 		for (size_t h = 0; h < blinrow; ++h) {
 			// multiply a block
+
 			size_t li = h * block + lftsft;
 			size_t ri = h * block + risft;
-
+			
+			_mm_prefetch(&a->data[li + h * block], _MM_HINT_T0);
+			_mm_prefetch(&b->data[ri + h * block], _MM_HINT_T0);
+			
+			
 			__m256d cr[4] = {
 			    _mm256_load_pd(&c->data[k * block + csft]),
 			    _mm256_load_pd(&c->data[c->cols + k * block + csft]),

@@ -9,7 +9,6 @@
 #include <time.h>
 
 #include "mult.h"
-#include "vector.h"
 
 int generate_test(matrix *a, matrix *b, size_t n) {
 	for (size_t i = 0; i < n; ++i) {
@@ -36,11 +35,15 @@ int compare_doubles(const void *a, const void *b) {
 }
 
 void *aalloc(size_t size) {
-	const size_t alignment = 64;
+	size_t const alignment = 64;
 	if (size % alignment != 0) {
 		size = (size + alignment - 1) & ~(alignment - 1);
 	}
 	return aligned_alloc(alignment, size);
+}
+
+void *arealloc(void *data, size_t size) {
+	return realloc(data, size);
 }
 
 typedef void (*matrix_mult_func)(matrix const *, matrix const *,
@@ -51,9 +54,10 @@ struct stats {
 	double p1;
 };
 
+/*
 struct stats bench(matrix_mult_func multer, size_t n, size_t tests) {
 	matrix a, b, c;
-	matrix_ccreate(n, n, aalloc, &a, &b, &c);
+	matrix_ccreate(n, n, aalloc, arealloc, &a, &b, &c);
 
 	generate_test(&a, &b, n);
 
@@ -91,7 +95,7 @@ struct stats bench(matrix_mult_func multer, size_t n, size_t tests) {
 	vector_destroy(&times);
 	return res;
 }
-
+*/
 void gen_name(char *buf, size_t size) {
 	char const charset[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	for (size_t i = 0; i < size - 1; i++) {
@@ -105,7 +109,7 @@ void test_correctness() {
 	scanf("%zu", &n);
 
 	matrix a, b, c, btr, c2;
-	matrix_ccreate(n, n, aalloc, &a, &b, &c, &btr, &c2);
+	matrix_ccreate(n, n, aalloc, arealloc, &a, &b, &c, &btr, &c2);
 
 	for (size_t i = 0; i < a.rows; ++i) {
 		for (size_t j = 0; j < a.cols; ++j) {
@@ -151,8 +155,9 @@ void test_correctness() {
 }
 
 int main() {
-	// test_correctness();
+	test_correctness();
 
+	/*
 	srand(time(NULL));
 
 	char test1[10];
@@ -217,6 +222,6 @@ int main() {
 	if (err) {
 		return -2;
 	}
-
+	*/
 	return 0;
 }
