@@ -1,5 +1,5 @@
-CFLAGS  := -Wall -Wextra -O3 -std=c23 -march=native $(CFLAGS)
-LDFLAGS := -lc -lm -fuse-ld=mold $(LDFLAGS)
+CFLAGS  := -Wall -Werror -Wextra -O2 -std=c23 $(CFLAGS)
+LDFLAGS := -lc -lm -fuse-ld=lld $(LDFLAGS)
 
 # -fsanitize=address -fsanitize=undefined 
 
@@ -7,13 +7,13 @@ CC = clang
 LD = clang
 
 LD_LIBRARY_PATH := -L/usr/lib
-INCL_PATH 			:= -Iinclude/
+INCL_PATH       := -Iinclude/
 
 OUT_O_DIR := build
 SRCS_DIRS := . methods
-SRCS			:= $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
-OBJS			:= $(addprefix $(OUT_O_DIR)/,$(SRCS:.c=.o))
-DEPS			:= $(OBJS:.o=.d)
+SRCS	    := $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
+OBJS	    := $(addprefix $(OUT_O_DIR)/,$(SRCS:.c=.o))
+DEPS	    := $(OBJS:.o=.d)
 
 ifeq ($(DEBUG_INFO),1)
 	CFLAGS += -DDEBUG_INFO

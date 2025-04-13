@@ -3,6 +3,6 @@
 #ifndef DICHOTOMY_H
 #define DICHOTOMY_H
 
-double dichotomy_method(double, double, double, double);
+double dichotomy_method(double, double, double);
 
 #endif

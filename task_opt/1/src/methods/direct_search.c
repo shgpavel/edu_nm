@@ -26,13 +26,13 @@ double direct_search(double init, double step) {
 		double x3 = x2 + step;
 		double f3 = func(x3);
 
-		if (f3 > f2) {
-			break;
-		} else {
+		if (f3 <= f2) {
 			x1 = x2;
 			x2 = x3;
 			f1 = f2;
 			f2 = f3;
+		} else {
+			break;
 		}
 	}
 
@@ -56,15 +56,11 @@ double direct_search(double init, double step) {
 			change = 1;
 		} else {
 			if (change) {
-				double x3 = x1;
-				double f3 = f1;
 				x1 = x_temp;
 				f1 = f_temp;
 				step = -step;
 				change = 0;
 			} else {
-				double x3 = x_temp;
-				double f3 = f_temp;
 				change = 1;
 			}
 		}

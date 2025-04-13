@@ -12,8 +12,10 @@ double golden(double a, double b, double epsilon) {
 		b = tmp;
 	}
 
+#ifdef DEBUG_INFO
 	size_t itr = 1;
-
+#endif
+	
 	const double phi = (1 + sqrt(5)) / 2;
 	const double inv = 1 / phi;
 
@@ -42,9 +44,9 @@ double golden(double a, double b, double epsilon) {
 			d = a + inv * (b - a);
 			f2 = func(d);
 		}
-		++itr;
 
 #ifdef DEBUG_INFO
+		++itr;
 		printf("i: %zu c: %.3a d: %.3a f(c): %.3a f(d-c): %.3a\n", itr,
 		       c, d, func(c), func(d - c));
 #endif
