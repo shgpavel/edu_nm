@@ -3,6 +3,6 @@
 #ifndef GOLDEN_H
 #define GOLDEN_H
 
-double golden(double, double, double);
+double golden(double a, double b, double epsilon);
 
 #endif

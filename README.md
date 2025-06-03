@@ -49,7 +49,7 @@ Runge–Kutta methods 2nd and 4th ord (plus gpu)
 Speeding up matrix multiplication on CPU
 
 ## task_opt
-Optimization methods course
+Golden ratio, dichotomy and guided search minimizers
 
 ## memory_proto
 Memory manager (originally designed for task_7)

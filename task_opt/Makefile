@@ -1,4 +1,4 @@
-CFLAGS  := -Wall -Werror -Wextra -O2 -std=c23 $(CFLAGS)
+CFLAGS  := -Wall -Wextra -O2 -std=c23 $(CFLAGS)
 LDFLAGS := -lc -lm -fuse-ld=lld $(LDFLAGS)
 
 # -fsanitize=address -fsanitize=undefined 
@@ -15,7 +15,7 @@ SRCS	    := $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
 OBJS	    := $(addprefix $(OUT_O_DIR)/,$(SRCS:.c=.o))
 DEPS	    := $(OBJS:.o=.d)
 
-ifeq ($(DEBUG_INFO),1)
+ifdef DEBUG_INFO
 	CFLAGS += -DDEBUG_INFO
 endif
 

@@ -2,7 +2,7 @@
 	3 minimizers from first task on `optimization methods`
 
 ## Status
-	4*Pre-rel
+	Release
 
 ## Contains
 	src/methods/dichotomy.c     -- dichotomy (div by 2) method
