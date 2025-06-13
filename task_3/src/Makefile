@@ -1,4 +1,4 @@
-CFLAGS := -Wall -Wextra -O3 -std=c2x ${CFLAGS}
+CFLAGS := -Wall -Wextra -O2 -std=c23 ${CFLAGS}
 
 CC = clang
 LD = clang
@@ -9,7 +9,7 @@ SRCS = $(wildcard $(addsuffix /*.c, $(SRCS_DIRS)))
 LL = -lm -ljemalloc
 
 main: $(SRCS)
-	$(CC) $(SRCS) -o main.o $(LL) $(CFLAGS)
+	$(CC) $(SRCS) $(LL) $(CFLAGS)
 
 clean:
-	rm -rf main.o
+	rm -rf a.out

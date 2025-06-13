@@ -9,6 +9,7 @@
  */
 
 #include <stdio.h>
+
 #include "func.h"
 
 double quad_left(double a, double b) {
@@ -24,5 +25,5 @@ double quad_trapz(double a, double b) {
 }
 
 double quad_simpson(double a, double b) {
-	return (func(a) + 4 * func((a + b)/2) + func(b)) * (b - a) / 6;
+	return (func(a) + 4 * func((a + b) / 2) + func(b)) * (b - a) / 6;
 }

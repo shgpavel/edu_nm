@@ -7,15 +7,16 @@
  */
 
 #include "advanced_quadrature.h"
+
 #include <jemalloc/jemalloc.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 
-#include "partitions.h"
 #include "cube_eq.h"
 #include "func.h"
 #include "matrix.h"
+#include "partitions.h"
 #include "qr_avx.h"
 #include "vector.h"
 #include "vector_avx.h"
@@ -23,20 +24,18 @@
 #define CHECK_NEG
 #define N 3
 
-/*
- * uint64_t combination(int n, int k)
-*/
+uint64_t combinations(int n, int k) {
+	if (k > n) return 0;
+	if (k == 0 || k == n) return 1;
 
-int combinations(int n, int k) {
-	int Bm[n + 1][n + 1];
-	for (int i = 0; i <= n; ++i) {
-		Bm[i][0] = 1;
-		Bm[i][i] = 1;
-		for (int j = 1; j < i; ++j) {
-			Bm[i][j] = Bm[i - 1][j - 1] + Bm[i - 1][j];
-		}
+	if (k > n - k) k = n - k;
+
+	uint64_t result = 1;
+	for (int i = 1; i <= k; i++) {
+		result = result * (n - i + 1) / i;
 	}
-	return Bm[n][k];
+
+	return result;
 }
 
 double compute_binomial(double m, double p, double a, double t) {
@@ -174,7 +173,7 @@ double gauss_quad(double a, double b) {
 
 double newton_cotes_nxn(size_t n, double a, double b) {
 	vector points = linspace(a, b, n);
-	
+
 	vector moments;
 	vector_cinit(&moments, n, sizeof(double));
 	for (size_t i = 0; i < n; ++i) {
@@ -188,7 +187,7 @@ double newton_cotes_nxn(size_t n, double a, double b) {
 			matrix_val(&vtt, i, j) = pow(vector_val(&points, j), i);
 		}
 	}
-	
+
 	vector fvals;
 	vector_cinit(&fvals, n, sizeof(double));
 	for (size_t i = 0; i < fvals.size; ++i) {
@@ -203,15 +202,18 @@ double newton_cotes_nxn(size_t n, double a, double b) {
 #ifdef CHECK_NEG
 	for (size_t i = 0; i < sol->size; ++i) {
 		if (vector_val(sol, i) < 0) {
-			printf("Info: Newton-Cotes nxn less than zero value in A's at [%zu]\n", n);
+			printf(
+			    "Info: Newton-Cotes nxn less than zero value in "
+			    "A's at [%zu]\n",
+			    n);
 		}
 	}
 #endif
-	
+
 	double res = vector_scalar_prod_avx(sol, &fvals);
 
 	vector_free(&fvals);
 	vector_free(sol);
 	free(sol);
-	return res;	
+	return res;
 }

@@ -1,4 +1,4 @@
 ## ISSUES:
-	1. Bad style (at retrospective)
-	2. js server is trash [gonna be fixed in task_7]
-	3. plot splines working bad
+    1. Bad style
+    2. JS server is trash
+    3. plot splines

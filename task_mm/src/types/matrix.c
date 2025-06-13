@@ -8,7 +8,7 @@
 #include <string.h>
 
 void matrix_ccreate_impl(size_t rows, size_t cols, allocator alloc,
-												 reallocator realloc, size_t count, ...) {
+                         reallocator realloc, size_t count, ...) {
 	va_list args;
 	va_start(args, count);
 
@@ -75,12 +75,12 @@ void matrix_transpose(matrix *dest, matrix *src) {
 
 void matrix_resize_specc(matrix *m, size_t cols) {
 	m->data = m->realloc(m->data, m->rows * cols);
-	//memset();
+	// memset();
 	m->cols = cols;
 }
 
 void matrix_resize_specr(matrix *m, size_t rows) {
 	m->data = m->realloc(m->data, rows * m->cols);
-	//memset();
+	// memset();
 	m->rows = rows;
 }

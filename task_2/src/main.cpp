@@ -303,7 +303,6 @@ void parse_test(std::string filename) {
     ifile.close();
 }
 
-/*
 void test_5() {
     // 15 times 1e-(x) x in 3-6
     const double epsilon_0 = 1.5e-5;
@@ -382,13 +381,12 @@ void test_5() {
 
    }
 }
-*/
 
 int main(void) {
     while(1) {
         try {
             std::string filename;
-            std::cout << "Test file path?" << '\n';
+            std::cout << "Test file path? (eg. ./test)" << '\n';
             std::cin >> filename;
             parse_test(filename);
             break;
@@ -397,9 +395,7 @@ int main(void) {
         }
     }
 
-    /*
     test_5();
-    */
 
     return 0;
 }

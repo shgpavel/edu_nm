@@ -32,7 +32,7 @@
 ## Dependencies:
     jemalloc                        >= 5.3
     clang                           >= 15
-	posix
+    posix
 
 ## Build:
     make

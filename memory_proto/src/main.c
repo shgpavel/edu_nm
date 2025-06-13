@@ -26,18 +26,18 @@
  *       Remember that stack also contains binary i. e. .code.
  */
 
+#include <errno.h>
 #include <fcntl.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <semaphore.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
-#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #define SHM_NAME "/shared_control"
 
@@ -73,8 +73,8 @@ size_t stack_size(char *filename) {
 	}
 
 	return (size_t)limit.rlim_cur - (size_t)file_size;
-	
- failure:
+
+failure:
 	fclose(code);
 	return 0;
 }
@@ -91,9 +91,9 @@ struct control *shared_control_create(char *filename) {
 		goto failure;
 	}
 
-	struct control *shared_data = mmap(NULL, sizeof(struct control),
-																		 PROT_READ | PROT_WRITE,
-																		 MAP_SHARED, fd, 0);
+	struct control *shared_data =
+	    mmap(NULL, sizeof(struct control), PROT_READ | PROT_WRITE,
+	         MAP_SHARED, fd, 0);
 
 	if (shared_data == MAP_FAILED) {
 		perror("mmap");
@@ -110,8 +110,8 @@ struct control *shared_control_create(char *filename) {
 	shared_data->stack_max = stack_size(filename);
 	shared_data->fd = fd;
 	return shared_data;
-	
- failure:
+
+failure:
 	close(fd);
 	return NULL;
 }
@@ -123,9 +123,9 @@ struct control *shared_control_open() {
 		return NULL;
 	}
 
-	struct control *shared_data = mmap(NULL, sizeof(struct control),
-																		 PROT_READ | PROT_WRITE,
-																		 MAP_SHARED, fd, 0);
+	struct control *shared_data =
+	    mmap(NULL, sizeof(struct control), PROT_READ | PROT_WRITE,
+	         MAP_SHARED, fd, 0);
 	if (shared_data == MAP_FAILED) {
 		perror("mmap");
 		close(fd);
@@ -133,11 +133,10 @@ struct control *shared_control_open() {
 	}
 
 	if (shared_data->fd) {
-		
 	} else {
 		close(fd);
 	}
-	return shared_data; 
+	return shared_data;
 }
 
 void shared_control_destroy(struct control *shared_data, int *shm_fd) {
@@ -165,7 +164,6 @@ void c() {
 }
 
 int main(int argc, char *argv[]) {
-	
 	pid_t pid = fork();
 
 	if (pid == 0) {
@@ -179,6 +177,6 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	printf("\n");
-	
+
 	return 0;
 }

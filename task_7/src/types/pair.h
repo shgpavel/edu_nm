@@ -2,8 +2,8 @@
 #define PAIR_H
 
 typedef struct pair_s {
-  double a;
-  double b;
+	double a;
+	double b;
 } pair;
 
 #endif

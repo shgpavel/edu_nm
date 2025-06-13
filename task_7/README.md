@@ -1,14 +1,15 @@
 ## Overview:
-    
+   Integrals
+
 ## Status:
-	In development, WIP
+    Pre-rel WIP
 
 ## Extra:
 
 ## Dependencies:
 	
 ## Build:
-	Do not try this is WIP
 	make
+
 ## Start:
 	./build/main

@@ -1,5 +1,5 @@
 CFLAGS := -Wall -Wextra -Wconversion -Wformat -Wformat-security \
--O3 -std=c2x ${CFLAGS}
+-O2 -std=c23 ${CFLAGS}
 # -fsanitize=address -fsanitize=undefined 
 
 LDFLAGS := -lm -ljemalloc -lcurl ${LDFLAGS}

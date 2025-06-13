@@ -1,7 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef COMPOSITING_H
-#define COMPOSITING_H
+#ifndef COMPOUND_H
+#define COMPOUND_H
+
+#include <stddef.h>
 
 typedef double (*quad_func)(double, double);
 typedef double (*quad_func_any_n)(size_t, double, double);

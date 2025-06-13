@@ -1,4 +1,4 @@
-CFLAGS := -Wall -Wextra -O3 -std=c++2b ${CFLAGS}
+CFLAGS := -Wall -Wextra -O2 -std=c++23 ${CFLAGS}
 
 CC = clang++
 LD = clang++
@@ -7,7 +7,7 @@ SRCS_DIRS = . MPI MS LUP QR EigenWrap Funcs
 SRCS = $(wildcard $(addsuffix /*.cpp, $(SRCS_DIRS)))
 
 main: main.cpp
-	$(CC) $(SRCS) -o main.o $(CFLAGS)
+	$(CC) $(SRCS) $(CFLAGS)
 
 clean:
-	rm -rf main.o
+	rm -rf a.out 

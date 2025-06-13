@@ -12,11 +12,11 @@ typedef void *(*reallocator)(void *, size_t);
 #define COUNT_ARGS(...) \
 	COUNT_ARGS_IMPL(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
-#define matrix_destroy(...)																	\
+#define matrix_destroy(...) \
 	matrix_destroy_impl(COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
-#define matrix_ccreate(rows, cols, allocator, reallocator, ...)				\
-	matrix_ccreate_impl(rows, cols, allocator, reallocator, COUNT_ARGS(__VA_ARGS__), \
-	                    __VA_ARGS__)
+#define matrix_ccreate(rows, cols, allocator, reallocator, ...) \
+	matrix_ccreate_impl(rows, cols, allocator, reallocator, \
+	                    COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
 #define matrix_val(m, i, j) ((m)->data[(i) * (m)->cols + (j)])
 #define matrix_direct(m, i) ((m)->data[i])
 

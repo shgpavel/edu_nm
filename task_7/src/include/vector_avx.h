@@ -4,6 +4,7 @@
 #define VECTOR_AVX_H
 
 #include <immintrin.h>
+
 #include "vector.h"
 
 void print_avxreg(__m256d);

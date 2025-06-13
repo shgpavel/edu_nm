@@ -1,44 +1,44 @@
 ## Overview:
     First method may be a bit faster than
-	optimized version :), so probably it's better
-	to just use LSM transpose and solve
+    optimized version :), so probably it's better
+    to just use LSM transpose and solve
 
 ## Status:
     Released
 
 ## Contains:
-	src/draw/draw.c           -- using curl to send funcs to the server
-	src/draw/drawer.js        -- JS POST/GET server to draw with desmos
+    src/draw/draw.c           -- using curl to send funcs to the server
+    src/draw/drawer.js        -- JS POST/GET server to draw with desmos
 	
-	src/funcs/func.h          -- function from task
-	src/common.h              -- useful macros
-	src/main.c                -- base logic and entry func
+    src/funcs/func.h          -- function from task
+    src/common.h              -- useful macros
+    src/main.c                -- base logic and entry func
 	
-	src/methods/gauss.c       -- just solving SLAE
-	src/methods/polynoms.c    -- vector/polynoms functions
-	src/methods/normal_poly.c -- first method (LSM transpose and solve SLAE)
+    src/methods/gauss.c       -- just solving SLAE
+    src/methods/polynoms.c    -- vector/polynoms functions
+    src/methods/normal_poly.c -- first method (LSM transpose and solve SLAE)
     src/methods/orth_poly.c   -- second method (LSE iter formula orth_poly)
     src/types/matrix.c        -- new matrix methods
-	src/types/vector.c        -- refactored vector from prev tasks
-	src/types/pair.h          -- simple double pair
+    src/types/vector.c        -- refactored vector from prev tasks
+    src/types/pair.h          -- simple double pair
 	
 ## Dependencies:
     jemalloc        >= 5.3
     clang           >= 17
-	libcurl         >= 8.7.1
-	node            >= 21.7.3
-	express         >= 4.19.2
+    libcurl         >= 8.7.1
+    node            >= 21.7.3
+    express         >= 4.19.2
     xdg-mime support
-	curl dependencies
-	express dependencies
+    curl dependencies
+    express dependencies
 
 ## Build:
-	cd src/draw
-	npm install express
-	cd ..
+    cd src/draw
+    npm install express
+    cd ..
     make
     make clean
 
 ## Start:
-	node src/draw/drawer.js
-	./build/main
+    node src/draw/drawer.js
+    ./build/main

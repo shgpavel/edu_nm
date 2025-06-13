@@ -6,10 +6,10 @@
 #include <stddef.h>
 
 typedef struct vector_s {
-  size_t size;
-  size_t capacity;
-  size_t type_size;
-  void **data;
+	size_t size;
+	size_t capacity;
+	size_t type_size;
+	void **data;
 } vector;
 
 #define vector_val(v, i) (*(double *)vector_get(v, i))

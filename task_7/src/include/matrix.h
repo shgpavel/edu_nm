@@ -4,12 +4,13 @@
 #define MATRIX_H
 
 #include <stddef.h>
+
 #include "vector.h"
 
 typedef struct matrix_s {
-  size_t rows;
-  size_t cols;
-  vector *data;
+	size_t rows;
+	size_t cols;
+	vector *data;
 } matrix;
 
 #define matrix_val(m, row, col) (*(double *)matrix_get(m, row, col))

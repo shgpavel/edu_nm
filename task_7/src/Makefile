@@ -1,5 +1,5 @@
-CFLAGS := -Wall -Wextra -O3 -std=c23 -march=native $(CFLAGS)
-LDFLAGS := -lc -lm -ljemalloc -fuse-ld=mold $(LDFLAGS)
+CFLAGS := -Wall -Wextra -O2 -std=c23 -march=native $(CFLAGS)
+LDFLAGS := -lc -lm -ljemalloc $(LDFLAGS)
 
 # -fsanitize=address -fsanitize=undefined
 

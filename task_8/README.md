@@ -6,7 +6,7 @@
 	details when applied to general problem
 
 ## Status
-	Pre-rel
+	Pre-rel (not all CUDA kernels are ready)
 
 ## Contains
 	src/methods/rk2.py      -- Runge–Kutta 2nd order with constant step
