@@ -16,3 +16,5 @@ task_mm/src/results/cache
 
 task_opt/1/src/.clangd
 task_opt/2/src/.clangd
+
+task_serpas/public
