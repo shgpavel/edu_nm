@@ -6,18 +6,18 @@
 int
 main()
 {
-	void   *handle = dlopen("./sca25lib.so", RTLD_LAZY);
-	double *(*funcTask1)(double **a, double *y, int N);
-	// long int (*funcTask2)(int **M, int N);
-	// double **(*funcTask3)(float **A, float **B, int N);
+	void    *handle = dlopen("./sca25lib.so", RTLD_LAZY);
+	double  *(*funcTask1)(double **a, double *y, int N);
+	long int (*funcTask2)(int **M, int N);
+	double **(*funcTask3)(float **A, float **B, int N);
 
 	funcTask1
 	        = (double *(*)(double **, double *, int))dlsym(handle, "funcTask1");
 
-	// funcTask2 = (long int (*)(int **, int))dlsym(handle, "funcTask2");
+	funcTask2 = (long int (*)(int **, int))dlsym(handle, "funcTask2");
 
-	// funcTask3
-	//        = (double **(*)(float **, float **, int))dlsym(handle, "funcTask3");
+	funcTask3
+	        = (double **(*)(float **, float **, int))dlsym(handle, "funcTask3");
 
 	// 1
 	int n;
@@ -94,19 +94,17 @@ main()
 		free(res);
 	}
 
-	/*
-	        for (int i = 0; i < n; ++i) {
-	                for (int j = 0; j < n; ++j) {
-	                        printf("%lg ", a[i][j]);
-	                }
-	                printf("\n");
-	        }
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			printf("%lg ", a[i][j]);
+		}
+		printf("\n");
+	}
 
-	        for (int i = 0; i < n; ++i) {
-	                printf("%lg ", y[i]);
-	        }
-	        printf("\n");
-	*/
+	for (int i = 0; i < n; ++i) {
+		printf("%lg ", y[i]);
+	}
+	printf("\n");
 
 	for (int i = 0; i < n; ++i) {
 		free(a[i]);
@@ -115,70 +113,65 @@ main()
 
 	free(y);
 
-	/*
-      // 2
+	// 2
 
-      int n;
-      scanf("%d", &n);
+	int n;
+	scanf("%d", &n);
 
-      int **a = (int **)malloc(sizeof(int *) * n);
-      for (size_t i = 0; i < n; ++i) {
-	      a[i] = (int *)malloc(sizeof(int) * n);
-      }
+	int **a = (int **)malloc(sizeof(int *) * n);
+	for (size_t i = 0; i < n; ++i) {
+		a[i] = (int *)malloc(sizeof(int) * n);
+	}
 
-      for (size_t i = 0; i < n; ++i) {
-	      for (size_t j = 0; j < n; ++j) {
-	              scanf("%d", &a[i][j]);
-	      }
-      }
+	for (size_t i = 0; i < n; ++i) {
+		for (size_t j = 0; j < n; ++j) {
+			scanf("%d", &a[i][j]);
+		}
+	}
 
-      printf("%ld\n", funcTask2(a, n));
+	printf("%ld\n", funcTask2(a, n));
 
-      for (size_t i = 0; i < n; ++i) {
-	      free(a[i]);
-      }
-      free(a);
-*/
+	for (size_t i = 0; i < n; ++i) {
+		free(a[i]);
+	}
+	free(a);
 
-	/*
-	        // 3
+	// 3
 
-	        int n;
-	        scanf("%d", &n);
+	int n;
+	scanf("%d", &n);
 
-	        float **a = (float **)malloc(sizeof(float *) * n);
-	        float **b = (float **)malloc(sizeof(float *) * n);
-	        for (int i = 0; i < n; ++i) {
-	                a[i] = (float *)malloc(sizeof(float) * n);
-	                b[i] = (float *)malloc(sizeof(float) * n);
-	        }
+	float **a = (float **)malloc(sizeof(float *) * n);
+	float **b = (float **)malloc(sizeof(float *) * n);
+	for (int i = 0; i < n; ++i) {
+		a[i] = (float *)malloc(sizeof(float) * n);
+		b[i] = (float *)malloc(sizeof(float) * n);
+	}
 
-	        for (int i = 0; i < n; ++i) {
-	                for (int j = 0; j < n; ++j) {
-	                        scanf("%f", &a[i][j]);
-	                }
-	        }
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			scanf("%f", &a[i][j]);
+		}
+	}
 
-	        for (int i = 0; i < n; ++i) {
-	                for (int j = 0; j < n; ++j) {
-	                        scanf("%f", &b[i][j]);
-	                }
-	        }
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			scanf("%f", &b[i][j]);
+		}
+	}
 
+	double **c = funcTask3(a, b, n);
+	for (size_t i = 0; i < n; ++i) {
+		for (size_t j = 0; j < n; ++j) {
+			printf("%lg ", c[i][j]);
+		}
+		printf("\n");
+	}
 
-	        double **c = funcTask3(a, b, n);
-	        for (size_t i = 0; i < n; ++i) {
-	          for (size_t j = 0; j < n; ++j) {
-	                  printf("%lg ", c[i][j]);
-	          }
-	          printf("\n");
-	        }
-
-	        for (size_t i = 0; i < n; ++i) {
-	                free(c[i]);
-	        }
-	        free(c);
-	*/
+	for (size_t i = 0; i < n; ++i) {
+		free(c[i]);
+	}
+	free(c);
 
 	dlclose(handle);
 }
