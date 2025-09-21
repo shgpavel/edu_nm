@@ -1,13 +1,13 @@
-CFLAGS := -Wall -Wextra -std=c99 -fopenmp -flto $(CFLAGS)
+CFLAGS := -Wall -Wextra -std=c23 -fopenmp -flto $(CFLAGS)
 LDFLAGS := -lm -lomp $(LDFLAGS)
 
-# -fsanitize=address -fsanitize=undefined
+-fsanitize=address -fsanitize=undefined
 
 CFLAGS += -O4 -ffast -ffast-mem -ffast-math -ffp-contract=fast -fexcess-precision=fast
 
-CFLAGS += -fswp-maxopers=2000 -fcache-opt -flist-prefetch
+CFLAGS += -fswp-maxopers=2000 -fcache-opt -funroll-loops -flist-prefetch
 
-#CFLAGS += -O3 -mavx -mfma
+#CFLAGS += -O3 -mavx -mfma -funroll-loops
 
 CC = lcc
 #CC = clang
