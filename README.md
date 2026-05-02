@@ -13,6 +13,7 @@ Welcome to my Numerical Methods Repository!
 - [Matrix multiplication](#task_mm)
 - [Optimization](#task_opt)
 - [Image processing](#task_imgprc)
+- [NM Quad NPU tournament](#task_nmq)
 - [Memory manager](#memory_proto)
 - [Scheduler](#sched)
 - [Related](#related)
@@ -55,6 +56,10 @@ Golden ratio, dichotomy and guided search minimizers
 ## task_imgprc
 Subtitle extraction from videos via Haar 2D-DWT,
 multi-frame tracker, FFmpeg decode
+
+## task_nmq
+NM Quad NPU programming tournament submissions
+(K1879VM8Ya / NMC4 VLIW DSP, NMC assembly, QEMU)
 
 ## memory_proto
 Memory manager (originally designed for task_7)

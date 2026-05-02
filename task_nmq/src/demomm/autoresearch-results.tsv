@@ -1,0 +1,9 @@
+# metric_direction: lower_is_better
+iteration	commit	metric	delta	guard	status	description
+0	f772f53	9935	0	pass	baseline	initial: 24x24=3805, 16x16=1460, 12x12=898, others small
+1	510cb98	6009	-3926	pass	keep	batch all bench shapes into 1 QEMU invocation (multi mode)
+2	-	-	-	-	discard	MUL32_LO 16->8 steps: verify-large 24x24 fails
+3	45e0633	5675	-348	pass	keep	LH_DOT delayed branch: prefetch A/bt in delay slots
+4	c2d49cd	5517	-158	pass	keep	delayed branch in all 5 DOT loops (LH/L8/L12/L16/L32/LFAST24B + LASTROW)
+5	cca4523	4109	-1408	pass	keep	FPU .double rank-1 matmul for 24x24: repack int32↔double, .retrive MAC
+6	-	3709	-400	pass	tentative	FPU .double kernel for M=K=N=16 (clone of LFPU24, 8 chunks repack, 16 MACs); needs test-system tick verification before keep/discard
