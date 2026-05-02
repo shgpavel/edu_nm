@@ -12,6 +12,7 @@ Welcome to my Numerical Methods Repository!
 - [Differential equations](#task_8)
 - [Matrix multiplication](#task_mm)
 - [Optimization](#task_opt)
+- [Image processing](#task_imgprc)
 - [Memory manager](#memory_proto)
 - [Scheduler](#sched)
 - [Related](#related)
@@ -50,6 +51,10 @@ Speeding up matrix multiplication on CPU
 
 ## task_opt
 Golden ratio, dichotomy and guided search minimizers
+
+## task_imgprc
+Subtitle extraction from videos via Haar 2D-DWT,
+multi-frame tracker, FFmpeg decode
 
 ## memory_proto
 Memory manager (originally designed for task_7)
